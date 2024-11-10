@@ -1,0 +1,23 @@
+{
+  "name": "bpp-monorepo",
+  "private": true,
+  "workspaces": [
+    "bpp-frontend",
+    "bpp-backend"
+  ],
+  "scripts": {
+    "prepare": "husky install",
+    "lint-staged": "npm run lint-staged --workspace=bpp-frontend && npm run lint-staged --workspace=bpp-backend",
+    "start": "concurrently \"npm run dev --workspace=bpp-frontend\" \"npm run dev --workspace=bpp-backend\""
+  },
+  "devDependencies": {
+    "husky": "9.1.6",
+    "lint-staged": "13.3.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
+}

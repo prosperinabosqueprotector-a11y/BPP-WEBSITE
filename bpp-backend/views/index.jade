@@ -1,0 +1,24 @@
+extends layout
+
+block content
+  .container
+    h1.title= title
+    p.description Welcome to the BPP API documentation
+    .api-info
+      h2 Endpoints
+      ul
+        li
+          strong GET /api/resource
+          |  - Retrieve all resources
+        li
+          strong POST /api/resource
+          |  - Create a new resource
+        li
+          strong GET /api/resource/:id
+          |  - Retrieve a specific resource
+        li
+          strong PUT /api/resource/:id
+          |  - Update a specific resource
+        li
+          strong DELETE /api/resource/:id
+          |  - Delete a specific resource
