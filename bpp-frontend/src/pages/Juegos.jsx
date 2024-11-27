@@ -9,6 +9,7 @@ import {
   Box,
   Container,
 } from '@mui/material';
+import Puzzle from '../components/Puzzle';
 import { ChevronRight, ChevronLeft } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import StarIcon from '@mui/icons-material/Star';
@@ -17,41 +18,13 @@ const plantCategories = [
   {
     title: 'Nivel 1',
     plants: [
-      {
-        name: 'Laberinto 1',
-        image:
-          'https://th.bing.com/th/id/OIP.JsnG9sY849QcTjAS8eYrcAHaFP?rs=1&pid=ImgDetMain',
-      },
-      {
-        name: 'Laberinto 2',
-        image:
-          'https://img.freepik.com/vector-premium/laberinto-ninos-animales-busca-comida-libro-colorear_599395-2637.jpg?w=360',
-      },
-      {
-        name: 'Laberinto 3',
-        image:
-          'https://ecdn.teacherspayteachers.com/thumbitem/Flower-maze-puzzle-4634693-1720705592/original-4634693-1.jpg',
-      },
+      // Laberintos
     ],
   },
   {
     title: 'Nivel 2',
     plants: [
-      {
-        name: 'Empareja 1',
-        image:
-          'https://th.bing.com/th/id/R.2790512db926c7fac1badc8187a5041e?rik=ovOcNuAFMBG02A&pid=ImgRaw&r=0',
-      },
-      {
-        name: 'Empareja 2',
-        image:
-          'https://th.bing.com/th/id/R.2790512db926c7fac1badc8187a5041e?rik=ovOcNuAFMBG02A&pid=ImgRaw&r=0',
-      },
-      {
-        name: 'Empareja 3',
-        image:
-          'https://th.bing.com/th/id/R.2790512db926c7fac1badc8187a5041e?rik=ovOcNuAFMBG02A&pid=ImgRaw&r=0',
-      },
+      // Empareja
     ],
   },
   {
@@ -76,7 +49,7 @@ const plantCategories = [
   },
 ];
 
-const PlantCategory = ({ category }) => {
+const PlantCategory = ({ category, onSelectPuzzle }) => {
   const [startIndex, setStartIndex] = useState(0);
   const [visiblePlants, setVisiblePlants] = useState(5);
 
@@ -111,14 +84,11 @@ const PlantCategory = ({ category }) => {
         sx={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center', // Centra el contenido
-          gap: 1, // Espacio entre el texto y las estrellas
+          justifyContent: 'center',
+          gap: 1,
         }}
       >
-        {/* Icono de estrella izquierda */}
         <StarIcon sx={{ color: 'gold' }} />
-
-        {/* Texto centrado */}
         <Typography
           variant="h5"
           className="mb-6 font-bold text-green-800 border-b-2 border-green-500 pb-2 inline-block"
@@ -126,8 +96,6 @@ const PlantCategory = ({ category }) => {
         >
           {category.title}
         </Typography>
-
-        {/* Icono de estrella derecha */}
         <StarIcon sx={{ color: 'gold' }} />
       </Box>
       <Box className="flex items-center mt-4" sx={{ py: 2 }}>
@@ -156,7 +124,12 @@ const PlantCategory = ({ category }) => {
                   transition={{ duration: 0.3 }}
                   className="px-2 py-4"
                 >
-                  <Card className="w-44 transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                  <Card
+                    className="w-44 transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                    onClick={() => {
+                      if (plant.name === 'Puzzle') onSelectPuzzle();
+                    }}
+                  >
                     <CardMedia
                       component="img"
                       height="140"
@@ -189,22 +162,30 @@ const PlantCategory = ({ category }) => {
   );
 };
 
-export default function Flora({ theme }) {
-  const [selectedCategory] = useState('');
-  const [searchTerm] = useState('');
+export default function Juegos({ theme }) {
+  const [selectedPuzzle, setSelectedPuzzle] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
 
-  const filteredCategories = plantCategories
-    .map((category) => ({
-      ...category,
-      plants: category.plants.filter((plant) =>
-        plant.name.toLowerCase().includes(searchTerm.toLowerCase())
-      ),
-    }))
-    .filter(
-      (category) =>
-        category.plants.length > 0 &&
-        (selectedCategory === '' || category.title === selectedCategory)
-    );
+  const handleSelectPuzzle = () => {
+    fetch('http://localhost:3000/api/puzzle-image')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log('Received image URL:', data.imageUrl);
+        setImageUrl(data.imageUrl);
+        setSelectedPuzzle(true);
+      })
+      .catch((error) => console.error('Error fetching puzzle image:', error));
+  };
+
+  const filteredCategories = plantCategories.map((category) => ({
+    ...category,
+    plants: category.plants.filter((plant) => plant.name),
+  }));
 
   return (
     <Box
@@ -234,15 +215,15 @@ export default function Flora({ theme }) {
           p={4}
           bgcolor="rgba(255, 255, 255, 0.9)"
           sx={{
-            position: 'relative', // Posición relativa para permitir texto posicionado encima
+            position: 'relative',
             backgroundImage:
-              'url("https://th.bing.com/th/id/OIP.slTZ5pg4TmtMK8WqwCUOrgAAAA?rs=1&pid=ImgDetMain")', // Ruta de la imagen
-            backgroundSize: 'contain', // Ajusta la imagen para que se vea completa sin cortar
-            backgroundPosition: 'center', // Centra la imagen
-            height: '150px', // Altura del contenedor
-            display: 'flex', // Utiliza flex para centrar el contenido
-            justifyContent: 'center', // Centra el contenido horizontalmente
-            alignItems: 'center', // Centra el contenido verticalmente
+              'url("https://th.bing.com/th/id/OIP.slTZ5pg4TmtMK8WqwCUOrgAAAA?rs=1&pid=ImgDetMain")',
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            height: '150px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
           <Typography
@@ -252,7 +233,7 @@ export default function Flora({ theme }) {
             color="black"
             sx={{
               position: 'absolute',
-              top: '10%', // Ajusta el valor del top según tu preferencia
+              top: '10%',
               left: '50%',
               transform: 'translateX(-50%)',
               textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
@@ -264,9 +245,17 @@ export default function Flora({ theme }) {
           </Typography>
         </Box>
 
-        {filteredCategories.map((category, index) => (
-          <PlantCategory key={index} category={category} />
-        ))}
+        {selectedPuzzle ? (
+          <Puzzle imageUrl={imageUrl} />
+        ) : (
+          filteredCategories.map((category, index) => (
+            <PlantCategory
+              key={index}
+              category={category}
+              onSelectPuzzle={handleSelectPuzzle}
+            />
+          ))
+        )}
       </Container>
     </Box>
   );
