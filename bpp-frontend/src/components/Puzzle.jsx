@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
+import { Box, Typography, Button, Paper } from '@mui/material';
 
-const Puzzle = ({ imageUrl }) => {
+const Puzzle = () => {
   const initialPieces = Array.from({ length: 9 }, (_, i) => i);
   const [pieces, setPieces] = useState(initialPieces);
   const [points, setPoints] = useState(0);
   const [isPuzzleSolved, setIsPuzzleSolved] = useState(false);
-  const [time, setTime] = useState(0); // Estado para el temporizador
-  const [timerActive, setTimerActive] = useState(false); // Estado para controlar el temporizador
-  const [moves, setMoves] = useState(0); // Estado para el contador de movimientos
+  const [time, setTime] = useState(0);
+  const [timerActive, setTimerActive] = useState(false);
+  const [moves, setMoves] = useState(0);
+  const [currentImage, setCurrentImage] = useState('');
 
   useEffect(() => {
     shuffleAndResetPuzzle();
-  }, []);
+  }, [shuffleAndResetPuzzle]);
 
   useEffect(() => {
     let timer;
@@ -23,16 +25,27 @@ const Puzzle = ({ imageUrl }) => {
     return () => clearInterval(timer);
   }, [timerActive]);
 
-  // Función para mezclar las piezas y reiniciar el estado de resuelto, tiempo y movimientos
-  const shuffleAndResetPuzzle = () => {
-    setPieces(shuffleArray([...initialPieces]));
-    setIsPuzzleSolved(false);
-    setTime(0); // Reinicia el tiempo al mezclar las piezas
-    setMoves(0); // Reinicia el contador de movimientos
-    setTimerActive(true); // Activa el temporizador cuando empieza el juego
+  const fetchPuzzleImage = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/puzzle-image');
+      const data = await response.json();
+      console.log('Image received:', data.imageUrl);
+      setCurrentImage(data.imageUrl);
+    } catch (error) {
+      console.error('Error fetching puzzle image:', error);
+    }
   };
 
-  // Función para mezclar las piezas
+  const shuffleAndResetPuzzle = async () => {
+    await fetchPuzzleImage();
+    setPieces(shuffleArray([...initialPieces]));
+    setIsPuzzleSolved(false);
+    setTime(0);
+    setMoves(0);
+    setPoints(0); // 🔄 Reinicia los puntos
+    setTimerActive(true);
+  };
+
   const shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -41,7 +54,6 @@ const Puzzle = ({ imageUrl }) => {
     return array;
   };
 
-  // Manejadores de eventos de arrastrar y soltar
   const handleDragStart = (e, index) => {
     e.dataTransfer.setData('pieceIndex', index);
   };
@@ -55,7 +67,7 @@ const Puzzle = ({ imageUrl }) => {
         newPieces[draggedIndex],
       ];
       setPieces(newPieces);
-      setMoves(moves + 1); // Incrementa el contador de movimientos
+      setMoves((prevMoves) => prevMoves + 1);
     }
   };
 
@@ -63,49 +75,58 @@ const Puzzle = ({ imageUrl }) => {
     e.preventDefault();
   };
 
-  // Verifica si el puzzle está resuelto
   const isSolved = pieces.every((piece, index) => piece === index);
 
-  // Incrementa puntos al resolver el puzzle solo una vez y detiene el temporizador
   useEffect(() => {
     if (isSolved && !isPuzzleSolved) {
-      setTimerActive(false); // Detiene el temporizador
-      const bonusPoints = Math.max(0, 100 - time); // Calcula puntos adicionales basados en el tiempo
-      const movePenalty = Math.max(0, 50 - moves); // Calcula puntos adicionales basados en los movimientos (menos movimientos = más puntos)
-      setPoints(points + 10 + bonusPoints + movePenalty); // Incrementa los puntos con el bono por tiempo y movimientos
-      setIsPuzzleSolved(true); // Marca el puzzle como resuelto para evitar sumar más puntos
+      setTimerActive(false);
+      const bonusPoints = Math.max(0, 100 - time);
+      const movePenalty = Math.max(0, 50 - moves);
+      setPoints((prevPoints) => prevPoints + 10 + bonusPoints + movePenalty);
+      setIsPuzzleSolved(true);
     }
-  }, [isSolved, isPuzzleSolved, points, time, moves]);
+  }, [isSolved, isPuzzleSolved, time, moves]);
 
   return (
-    <div
-      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+    <Paper
+      elevation={6}
+      sx={{
+        padding: 4,
+        maxWidth: 600,
+        margin: 'auto',
+        textAlign: 'center',
+        backgroundColor: '#f5f5f5',
+      }}
     >
-      <h2>Puzzle Game</h2>
-      <p>Puntos: {points}</p>
-      <p>Tiempo: {time} segundos</p>
-      <p>Movimientos: {moves}</p>
-      <div
-        style={{
+      <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold' }}>
+        🌿 Puzzle Game
+      </Typography>
+      <Typography variant="h6">🎯 Puntos: {points}</Typography>
+      <Typography variant="h6">⏱️ Tiempo: {time}s</Typography>
+      <Typography variant="h6">🔄 Movimientos: {moves}</Typography>
+
+      <Box
+        sx={{
           width: '300px',
           height: '300px',
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '2px',
           border: '2px solid #333',
+          margin: '20px auto',
         }}
       >
         {pieces.map((piece, index) => (
-          <div
+          <Box
             key={index}
             draggable
             onDragStart={(e) => handleDragStart(e, index)}
             onDrop={(e) => handleDrop(e, index)}
             onDragOver={handleDragOver}
-            style={{
+            sx={{
               width: '100%',
               height: '100%',
-              backgroundImage: `url(${imageUrl})`,
+              backgroundImage: `url(${currentImage})`,
               backgroundPosition: `${(piece % 3) * -100}% ${
                 Math.floor(piece / 3) * -100
               }%`,
@@ -115,20 +136,24 @@ const Puzzle = ({ imageUrl }) => {
             }}
           />
         ))}
-      </div>
+      </Box>
+
       {isSolved && (
-        <p>
-          ¡Puzzle resuelto! +10 puntos más {Math.max(0, 100 - time)} puntos de
-          bonificación y {Math.max(0, 50 - moves)} puntos por pocos movimientos
-        </p>
+        <Typography variant="h6" color="success.main" sx={{ mb: 2 }}>
+          🎉 ¡Puzzle resuelto! +10 puntos, +{Math.max(0, 100 - time)} puntos de
+          bonificación y +{Math.max(0, 50 - moves)} puntos por pocos
+          movimientos.
+        </Typography>
       )}
-      <button
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ mt: 2 }}
         onClick={shuffleAndResetPuzzle}
-        style={{ marginTop: '20px', padding: '10px 20px', fontSize: '16px' }}
       >
-        Reiniciar Puzzle
-      </button>
-    </div>
+        🔄 Reiniciar Puzzle
+      </Button>
+    </Paper>
   );
 };
 

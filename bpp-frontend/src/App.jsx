@@ -14,6 +14,7 @@ import Fauna from './pages/Fauna';
 import Flora from './pages/Flora';
 import Juegos from './pages/Juegos';
 import Mapa from './pages/Mapa';
+import Reviews from './pages/Reviews'; // ✅ Importamos la nueva página de reseñas
 import { colorSchemes, navItems } from './data/appData';
 
 export default function App() {
@@ -23,10 +24,9 @@ export default function App() {
   const [anchorEl, setAnchorEl] = useState(null);
   const isSmallScreen = useMediaQuery('(max-width:960px)');
 
-  // Add this new state
+  // Estado para el ancho del sidebar
   const [sidebarWidth, setSidebarWidth] = useState(isSmallScreen ? 0 : 256);
 
-  // Add this effect to update sidebarWidth when isOpen or isSmallScreen changes
   useEffect(() => {
     setSidebarWidth(isSmallScreen ? 0 : sidebarOpen ? 256 : 0);
   }, [sidebarOpen, isSmallScreen]);
@@ -131,6 +131,11 @@ export default function App() {
                   <Route path="/flora" element={<Flora theme={theme} />} />
                   <Route path="/juegos" element={<Juegos theme={theme} />} />
                   <Route path="/mapa" element={<Mapa theme={theme} />} />
+                  <Route
+                    path="/reviews"
+                    element={<Reviews theme={theme} />}
+                  />{' '}
+                  {/* ✅ Nueva ruta añadida */}
                 </Routes>
               </div>
             </main>
