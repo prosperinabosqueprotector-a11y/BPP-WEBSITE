@@ -7,37 +7,29 @@ import {
   Rating,
 } from '@mui/material';
 
-const dummyReviews = [
-  {
-    id: 1,
-    user: 'Juan Pérez',
-    rating: 5,
-    comment: '¡Me encantó! Muy educativo.',
-  },
-  {
-    id: 2,
-    user: 'María González',
-    rating: 4,
-    comment: 'Buen juego, pero podría mejorar.',
-  },
-  {
-    id: 3,
-    user: 'Carlos Sánchez',
-    rating: 5,
-    comment: 'Excelente para los niños.',
-  },
-];
-
 const ReviewList = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Simulación de carga de reseñas aprobadas
-    setTimeout(() => {
-      setReviews(dummyReviews);
+  const fetchReviews = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/reviews/all');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error('Error al obtener reseñas');
+      }
+
+      setReviews(data.filter((review) => review.approved)); // Mostrar solo aprobadas
       setLoading(false);
-    }, 1000);
+    } catch (error) {
+      console.error('❌ Error al obtener reseñas:', error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReviews();
   }, []);
 
   return (
@@ -54,7 +46,7 @@ const ReviewList = () => {
         reviews.map((review) => (
           <Paper key={review.id} sx={{ padding: 2, mb: 2, textAlign: 'left' }}>
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-              {review.user}
+              {review.username}
             </Typography>
             <Rating value={review.rating} readOnly />
             <Typography variant="body1">{review.comment}</Typography>

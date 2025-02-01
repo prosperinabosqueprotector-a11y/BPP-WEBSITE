@@ -1,34 +1,41 @@
-const express = require('express');
-const { db } = require('../firebaseConfig');
-const { collection, addDoc, getDocs } = require('firebase-admin/firestore');
+const express = require("express");
+const { db } = require("../firebaseConfig");
+const { Timestamp } = require("firebase-admin/firestore");
 
 const router = express.Router();
 
-// 📌 Guardar una puntuación en Firestore
-router.post('/save', async (req, res) => {
+// 📌 Guardar puntuación en Firebase
+router.post("/add", async (req, res) => {
   try {
-    const { userId, score } = req.body;
+    const { user, score } = req.body;
 
-    if (!userId || score === undefined) {
-      return res.status(400).json({ error: 'Faltan datos' });
+    if (!user || score === undefined) {
+      return res.status(400).json({ error: "Usuario y puntuación son requeridos" });
     }
 
-    await addDoc(collection(db, 'scores'), { userId, score, date: new Date() });
+    await db.collection("quiz_scores").add({
+      user,
+      score,
+      createdAt: Timestamp.now(), // ✅ Corregido para Firebase Admin SDK
+    });
 
-    res.status(201).json({ message: 'Puntuación guardada correctamente' });
+    res.status(201).json({ message: "✅ Puntuación guardada exitosamente en Firebase." });
   } catch (error) {
-    res.status(500).json({ error: 'Error al guardar puntuación', details: error.message });
+    res.status(500).json({ error: "❌ Error al guardar la puntuación", details: error.message });
   }
 });
 
-// 📌 Obtener todas las puntuaciones
-router.get('/all', async (req, res) => {
+// 📌 Obtener el Top 5 de puntuaciones (✅ Corregido para Firebase Admin SDK)
+router.get("/top", async (req, res) => {
   try {
-    const querySnapshot = await getDocs(collection(db, 'scores'));
-    const scores = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const scoresRef = db.collection("quiz_scores");
+    const querySnapshot = await scoresRef.orderBy("score", "desc").limit(5).get();
+
+    const scores = querySnapshot.docs.map((doc) => doc.data());
+
     res.status(200).json(scores);
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener puntuaciones', details: error.message });
+    res.status(500).json({ error: "❌ Error al obtener puntuaciones", details: error.message });
   }
 });
 

@@ -23,18 +23,36 @@ const ReviewForm = ({ onReviewSubmitted }) => {
       return;
     }
 
-    await onReviewSubmitted({ user, rating, comment });
+    try {
+      const response = await fetch('http://localhost:3000/api/reviews/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: user,
+          rating,
+          comment,
+          date: new Date().toISOString(),
+        }),
+      });
 
-    alert('Reseña enviada. Pendiente de aprobación.');
+      if (!response.ok) {
+        throw new Error('Error al enviar la reseña');
+      }
 
-    // Resetear el formulario
-    setUser('');
-    setRating(5);
-    setComment('');
-    setError('');
+      alert('Reseña enviada. Pendiente de aprobación.');
 
-    // Llamar a la función para actualizar la lista de reseñas
-    onReviewSubmitted();
+      // Resetear el formulario
+      setUser('');
+      setRating(5);
+      setComment('');
+      setError('');
+
+      // Actualizar la lista de reseñas
+      onReviewSubmitted();
+    } catch (error) {
+      console.error('❌ Error al enviar la reseña:', error);
+      setError('Error al enviar la reseña.');
+    }
   };
 
   return (
