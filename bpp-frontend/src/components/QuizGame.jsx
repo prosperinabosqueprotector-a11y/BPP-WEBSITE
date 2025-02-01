@@ -10,116 +10,34 @@ import {
   LinearProgress,
 } from '@mui/material';
 
-const questions = [
-  {
-    question: '¿Cuál es el ecosistema más biodiverso del planeta?',
-    options: ['Desierto', 'Selva Amazónica', 'Tundra', 'Sábana'],
-    correctAnswer: 'Selva Amazónica',
-  },
-  {
-    question: '¿Qué es la biodiversidad?',
-    options: [
-      'La variedad de seres vivos en un lugar',
-      'La cantidad de plantas en una región',
-      'El número de especies extintas',
-      'Un tipo de clima tropical',
-    ],
-    correctAnswer: 'La variedad de seres vivos en un lugar',
-  },
-  {
-    question: '¿Qué animales son típicos de las Islas Galápagos?',
-    options: [
-      'Pandas',
-      'Pingüinos y tortugas gigantes',
-      'Canguros',
-      'Leones africanos',
-    ],
-    correctAnswer: 'Pingüinos y tortugas gigantes',
-  },
-  {
-    question: '¿Qué es la deforestación?',
-    options: [
-      'Plantar árboles en zonas secas',
-      'La tala de árboles a gran escala',
-      'Proteger bosques y selvas',
-      'Crear parques naturales',
-    ],
-    correctAnswer: 'La tala de árboles a gran escala',
-  },
-  {
-    question: '¿Cuál es el gas más importante para el efecto invernadero?',
-    options: [
-      'Dióxido de carbono (CO₂)',
-      'Oxígeno (O₂)',
-      'Nitrógeno (N₂)',
-      'Helio (He)',
-    ],
-    correctAnswer: 'Dióxido de carbono (CO₂)',
-  },
-  {
-    question: '¿Qué es un área protegida?',
-    options: [
-      'Una zona con acceso limitado para proteger la naturaleza',
-      'Un parque de diversiones',
-      'Una ciudad en el desierto',
-      'Una fábrica ecológica',
-    ],
-    correctAnswer: 'Una zona con acceso limitado para proteger la naturaleza',
-  },
-  {
-    question: '¿Qué es la fauna?',
-    options: [
-      'El conjunto de animales de una región',
-      'El tipo de vegetación de un lugar',
-      'El clima en un ecosistema',
-      'El agua de un río',
-    ],
-    correctAnswer: 'El conjunto de animales de una región',
-  },
-  {
-    question: '¿Qué significa el término "especie en peligro de extinción"?',
-    options: [
-      'Una especie que vive en el agua',
-      'Una especie que está desapareciendo',
-      'Una especie con muchos individuos',
-      'Una planta que crece rápido',
-    ],
-    correctAnswer: 'Una especie que está desapareciendo',
-  },
-  {
-    question: '¿Qué país es conocido por la biodiversidad del Amazonas?',
-    options: ['Brasil', 'España', 'Canadá', 'Sudáfrica'],
-    correctAnswer: 'Brasil',
-  },
-  {
-    question: '¿Qué recurso natural es más importante para la vida?',
-    options: ['Agua', 'Petróleo', 'Hierro', 'Plástico'],
-    correctAnswer: 'Agua',
-  },
-];
-
 const QuizGame = () => {
+  const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(null);
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(30);
   const [timerActive, setTimerActive] = useState(true);
+  const [loading, setLoading] = useState(true);
 
+  // 🔥 Llamar al backend para obtener preguntas
   useEffect(() => {
-    if (timerActive && timer > 0) {
-      const interval = setInterval(() => {
-        setTimer((prevTime) => prevTime - 1);
-      }, 1000);
-      return () => clearInterval(interval);
-    } else if (timer === 0) {
-      handleNextQuestion();
-    }
-  }, [timer, timerActive, handleNextQuestion]);
+    fetch('http://localhost:3000/api/quiz/all') // Cambia esto si tu backend está en otro puerto
+      .then((response) => response.json())
+      .then((data) => {
+        setQuestions(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error al obtener preguntas:', error);
+        setLoading(false);
+      });
+  }, []);
 
+  // 🔄 Manejador para seleccionar respuesta
   const handleAnswerSelect = (answer) => {
     setSelectedAnswer(answer);
-    const correct = answer === questions[currentQuestionIndex].correctAnswer;
+    const correct = answer === questions[currentQuestionIndex]?.correctAnswer;
     setIsAnswerCorrect(correct);
 
     if (correct) {
@@ -128,6 +46,7 @@ const QuizGame = () => {
     setTimerActive(false);
   };
 
+  // 🔄 Manejador para pasar a la siguiente pregunta
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
@@ -150,6 +69,21 @@ const QuizGame = () => {
     setTimer(30);
     setTimerActive(true);
   };
+
+  // 🕓 Manejador del temporizador
+  useEffect(() => {
+    if (timerActive && timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prevTime) => prevTime - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    } else if (timer === 0) {
+      handleNextQuestion();
+    }
+  }, [timer, timerActive]);
+
+  // 🚀 Mostrar carga mientras obtenemos las preguntas
+  if (loading) return <p>Cargando preguntas...</p>;
 
   return (
     <Paper
@@ -190,14 +124,14 @@ const QuizGame = () => {
       </Typography>
 
       <Typography variant="h5" sx={{ mb: 3, color: '#37474F' }}>
-        {questions[currentQuestionIndex].question}
+        {questions[currentQuestionIndex]?.question}
       </Typography>
 
       <RadioGroup
         value={selectedAnswer}
         onChange={(e) => handleAnswerSelect(e.target.value)}
       >
-        {questions[currentQuestionIndex].options.map((option, index) => (
+        {questions[currentQuestionIndex]?.options.map((option, index) => (
           <FormControlLabel
             key={index}
             value={option}

@@ -11,19 +11,13 @@ const Puzzle = () => {
   const [moves, setMoves] = useState(0);
   const [currentImage, setCurrentImage] = useState('');
 
-  useEffect(() => {
-    shuffleAndResetPuzzle();
-  }, [shuffleAndResetPuzzle]);
-
-  useEffect(() => {
-    let timer;
-    if (timerActive) {
-      timer = setInterval(() => setTime((prevTime) => prevTime + 1), 1000);
-    } else {
-      clearInterval(timer);
+  const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
     }
-    return () => clearInterval(timer);
-  }, [timerActive]);
+    return array;
+  };
 
   const fetchPuzzleImage = async () => {
     try {
@@ -46,13 +40,19 @@ const Puzzle = () => {
     setTimerActive(true);
   };
 
-  const shuffleArray = (array) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+  useEffect(() => {
+    shuffleAndResetPuzzle(); // ✅ Ahora `shuffleAndResetPuzzle` está definido antes de este bloque
+  }, []);
+
+  useEffect(() => {
+    let timer;
+    if (timerActive) {
+      timer = setInterval(() => setTime((prevTime) => prevTime + 1), 1000);
+    } else {
+      clearInterval(timer);
     }
-    return array;
-  };
+    return () => clearInterval(timer);
+  }, [timerActive]);
 
   const handleDragStart = (e, index) => {
     e.dataTransfer.setData('pieceIndex', index);
