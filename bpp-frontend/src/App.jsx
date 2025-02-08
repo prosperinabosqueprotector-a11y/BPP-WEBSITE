@@ -15,6 +15,8 @@ import Flora from './pages/Flora';
 import Juegos from './pages/Juegos';
 import Mapa from './pages/Mapa';
 import Reviews from './pages/Reviews'; // ✅ Importamos la nueva página de reseñas
+import UploadPage from './pages/UploadPage';
+import GalleryPage from './pages/GalleryPage';
 import { colorSchemes, navItems } from './data/appData';
 
 export default function App() {
@@ -136,6 +138,14 @@ export default function App() {
                     element={<Reviews theme={theme} />}
                   />{' '}
                   {/* ✅ Nueva ruta añadida */}
+                  <Route
+                    path="/upload"
+                    element={<UploadPage theme={theme} />}
+                  />
+                  <Route
+                    path="/gallery"
+                    element={<GalleryPage theme={theme} />}
+                  />
                 </Routes>
               </div>
             </main>
