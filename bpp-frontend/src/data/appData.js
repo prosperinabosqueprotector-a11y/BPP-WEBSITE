@@ -33,7 +33,6 @@ export const navItems = [
   { text: 'Juegos', emoji: '🎮', route: '/juegos' },
   { text: 'Comunidad', emoji: '📸', route: '/comunidad' },
   { text: 'Reseñas', emoji: '⭐', route: '/reviews' },
-  { text: 'Cuadernillo', emoji: '📚', route: '/cuadernillo' },
   {
     text: 'Subir Imagen',
 
@@ -47,6 +46,7 @@ export const navItems = [
     emoji: '🖼️',
   },
 ];
+
 
 export const learningOptions = [
   {

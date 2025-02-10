@@ -19,6 +19,12 @@ const Sidebar = ({
 }) => {
   const location = useLocation();
 
+  // Añadir la nueva pestaña "Cuadernillo"
+  const updatedNavItems = [
+    ...navItems,
+    { text: 'Cuadernillo', emoji: '📖', route: '/pdf' }, // Nueva pestaña
+  ];
+
   return (
     <Drawer
       variant={isSmallScreen ? 'temporary' : 'persistent'}
@@ -42,7 +48,7 @@ const Sidebar = ({
         </IconButton>
       </div>
       <List>
-        {navItems.map((item, index) => {
+        {updatedNavItems.map((item, index) => {
           const isActive = location.pathname === item.route;
           return (
             <Zoom

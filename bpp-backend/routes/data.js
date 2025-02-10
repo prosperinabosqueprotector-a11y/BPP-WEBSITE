@@ -2,7 +2,6 @@ const express = require("express");
 const { db } = require("../firebaseConfig");
 
 const router = express.Router();
-
 // 📌 Obtener toda la fauna o flora
 router.get("/:type", async (req, res) => {
   try {

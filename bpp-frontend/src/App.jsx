@@ -5,6 +5,7 @@ import {
   createTheme,
   CssBaseline,
   useMediaQuery,
+  Typography,
 } from '@mui/material';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -15,23 +16,31 @@ import Flora from './pages/Flora';
 import Juegos from './pages/Juegos';
 import Mapa from './pages/Mapa';
 import Reviews from './pages/Reviews'; // ✅ Importamos la nueva página de reseñas
+import PDFViewer from './pages/PDFViewer';
 import UploadPage from './pages/UploadPage';
 import GalleryPage from './pages/GalleryPage';
 import { colorSchemes, navItems } from './data/appData';
-import Cuadernillo from './pages/Cuadernillo';
+
+const getSeason = () => {
+  const month = new Date().getMonth() + 1; // Enero es 0
+  return month >= 1 && month <= 5 ? 'Invierno ☁️ (Temporada lluviosa)' : 'Verano ☀️ (Temporada seca)';
+};
 export default function App() {
   const [activeItem, setActiveItem] = useState('Inicio');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [colorScheme, setColorScheme] = useState('spring');
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [sidebarWidth, setSidebarWidth] = useState(256);
   const isSmallScreen = useMediaQuery('(max-width:960px)');
-
-  // Estado para el ancho del sidebar
-  const [sidebarWidth, setSidebarWidth] = useState(isSmallScreen ? 0 : 256);
 
   useEffect(() => {
     setSidebarWidth(isSmallScreen ? 0 : sidebarOpen ? 256 : 0);
   }, [sidebarOpen, isSmallScreen]);
+
+  useEffect(() => {
+    // Cambia automáticamente el esquema de colores según la estación del año
+    const season = getSeason();
+    setColorScheme(season.includes('Invierno') ? 'winter' : 'summer');
+  }, []);
 
   const theme = useMemo(
     () =>
@@ -81,19 +90,6 @@ export default function App() {
     }
   };
 
-  const handleColorSchemeMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleColorSchemeMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleColorSchemeChange = (scheme) => {
-    setColorScheme(scheme);
-    handleColorSchemeMenuClose();
-  };
-
   return (
     <Router>
       <ThemeProvider theme={theme}>
@@ -113,13 +109,37 @@ export default function App() {
             className="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out"
             style={{ marginLeft: isSmallScreen ? 0 : sidebarWidth }}
           >
-            <Header
-              toggleSidebar={toggleSidebar}
-              handleColorSchemeMenuOpen={handleColorSchemeMenuOpen}
-              anchorEl={anchorEl}
-              handleColorSchemeMenuClose={handleColorSchemeMenuClose}
-              handleColorSchemeChange={handleColorSchemeChange}
-            />
+            {/* Banner de estación */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '10px 20px',
+                backgroundColor: theme.palette.primary.main,
+                color: '#fff',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <Typography
+                style={{
+                  marginRight: '10px',
+                  display: 'inline-block',
+                }}
+              >
+                {new Date().toLocaleDateString('es-EC', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}{' '}
+                - {getSeason()}
+              </Typography>
+            </div>
+
+            <Header toggleSidebar={toggleSidebar} />
 
             <main className="flex-1 w-full overflow-x-hidden overflow-y-auto">
               <div className="h-full w-full">
@@ -133,12 +153,14 @@ export default function App() {
                   <Route path="/flora" element={<Flora theme={theme} />} />
                   <Route path="/juegos" element={<Juegos theme={theme} />} />
                   <Route path="/mapa" element={<Mapa theme={theme} />} />
-                  <Route path="/cuadernillo" element={<Cuadernillo />} />
                   <Route
                     path="/reviews"
                     element={<Reviews theme={theme} />}
                   />{' '}
-                  {/* ✅ Nueva ruta añadida */}
+                  <Route
+                    path="/pdf"
+                    element={<PDFViewer pdfUrl="/cuadernillo.pdf" />}
+                  />
                   <Route
                     path="/upload"
                     element={<UploadPage theme={theme} />}

@@ -48,27 +48,6 @@ const Header = ({
           <Typography variant="body1" className="hidden sm:block">
             Explorador
           </Typography>
-          <IconButton color="inherit" onClick={handleColorSchemeMenuOpen}>
-            <Palette />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleColorSchemeMenuClose}
-          >
-            <MenuItem onClick={() => handleColorSchemeChange('spring')}>
-              Primavera 🌸
-            </MenuItem>
-            <MenuItem onClick={() => handleColorSchemeChange('summer')}>
-              Verano ☀️
-            </MenuItem>
-            <MenuItem onClick={() => handleColorSchemeChange('autumn')}>
-              Otoño 🍂
-            </MenuItem>
-            <MenuItem onClick={() => handleColorSchemeChange('winter')}>
-              Invierno ❄️
-            </MenuItem>
-          </Menu>
         </div>
       </Toolbar>
     </AppBar>
