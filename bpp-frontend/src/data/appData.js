@@ -27,6 +27,7 @@ export const colorSchemes = {
 
 export const navItems = [
   { text: 'Inicio', emoji: '🏠', route: '/' },
+  { text: 'Cuadernillo', emoji: '📖', route: '/pdf' }, // Nueva pestaña
   { text: 'Mapa', emoji: '🗺️', route: '/mapa' },
   { text: 'Flora', emoji: '🌿', route: '/flora' },
   { text: 'Fauna', emoji: '🦊', route: '/fauna' },
@@ -46,7 +47,6 @@ export const navItems = [
     emoji: '🖼️',
   },
 ];
-
 
 export const learningOptions = [
   {

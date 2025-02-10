@@ -1,6 +1,4 @@
 import { Typography, Container, Box } from '@mui/material';
-import LearningCard from '../components/LearningCard';
-import { learningOptions } from '../data/appData';
 
 export default function Home({ theme }) {
   return (
@@ -44,7 +42,7 @@ export default function Home({ theme }) {
             color="textSecondary"
             sx={{ fontWeight: 500 }}
           >
-            Elige una aventura para comenzar tu viaje por la naturaleza
+            Mira los videos y aprende más sobre la flora y fauna del bosque.
           </Typography>
         </Box>
 
@@ -60,14 +58,17 @@ export default function Home({ theme }) {
             },
           }}
         >
-          {learningOptions.map((option, index) => (
-            <LearningCard
-              key={option.title}
-              option={option}
-              index={index}
-              theme={theme}
-            />
-          ))}
+          <div style={{ textAlign: 'center' }} className="video-container">
+            <iframe
+              width="900"
+              height="600"
+              src="https://www.youtube.com/embed/JpcD5dEV3CY"
+              title="YouTube Video Player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>{' '}
         </Box>
       </Container>
     </Box>
