@@ -24,16 +24,19 @@ const ReviewForm = ({ onReviewSubmitted }) => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/reviews/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: user,
-          rating,
-          comment,
-          date: new Date().toISOString(),
-        }),
-      });
+      const response = await fetch(
+        'https://bpp-website.onrender.com/api/reviews/add',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: user,
+            rating,
+            comment,
+            date: new Date().toISOString(),
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Error al enviar la reseña');

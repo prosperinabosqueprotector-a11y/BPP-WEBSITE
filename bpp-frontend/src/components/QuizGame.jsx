@@ -26,7 +26,9 @@ const QuizGame = () => {
   // 📌 Obtener preguntas desde Firebase
   const fetchQuestions = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/quiz/all');
+      const response = await fetch(
+        'https://bpp-website.onrender.com/api/quiz/all'
+      );
       const data = await response.json();
       if (Array.isArray(data)) {
         setQuestions(data);
@@ -41,7 +43,9 @@ const QuizGame = () => {
   // 📌 Obtener el Top 5 de puntuaciones
   const fetchTopScores = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/scores/top');
+      const response = await fetch(
+        'https://bpp-website.onrender.com/api/scores/top'
+      );
       const data = await response.json();
       console.log('Puntuaciones recibidas:', data);
 
@@ -97,11 +101,14 @@ const QuizGame = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:3000/api/scores/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newScore),
-      });
+      const response = await fetch(
+        'https://bpp-website.onrender.com/api/scores/add',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newScore),
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();

@@ -23,7 +23,7 @@ const GalleryPage = ({ theme }) => {
   const handleDelete = async (publicId) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/cloudinary/delete/${publicId}`,
+        `https://bpp-website.onrender.com/api/cloudinary/delete/${publicId}`,
         {
           method: 'DELETE',
           headers: {
@@ -52,7 +52,7 @@ const GalleryPage = ({ theme }) => {
     const fetchImages = async () => {
       try {
         const response = await fetch(
-          'http://localhost:3000/api/cloudinary/images'
+          'https://bpp-website.onrender.com/api/cloudinary/images'
         );
         const data = await response.json();
         console.log('Received images:', data);

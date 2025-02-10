@@ -41,7 +41,9 @@ const Fauna = () => {
   useEffect(() => {
     const fetchAnimals = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/data/fauna');
+        const response = await fetch(
+          'https://bpp-website.onrender.com/api/data/fauna'
+        );
         const data = await response.json();
         setAnimals(data);
         setCategories([...new Set(data.map((item) => item.category))]);

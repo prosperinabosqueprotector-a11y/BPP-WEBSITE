@@ -21,7 +21,9 @@ const Puzzle = () => {
 
   const fetchPuzzleImage = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/puzzle-image');
+      const response = await fetch(
+        'https://bpp-website.onrender.com/api/puzzle-image'
+      );
       const data = await response.json();
       console.log('Image received:', data.imageUrl);
       setCurrentImage(data.imageUrl);

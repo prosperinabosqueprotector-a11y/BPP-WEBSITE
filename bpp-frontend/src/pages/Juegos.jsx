@@ -167,7 +167,7 @@ export default function Juegos() {
   const [imageUrl, setImageUrl] = useState('');
 
   const handleSelectPuzzle = () => {
-    fetch('http://localhost:3000/api/puzzle-image')
+    fetch('https://bpp-website.onrender.com/api/puzzle-image')
       .then((response) => {
         if (!response.ok)
           throw new Error('Error al obtener la imagen del puzzle');

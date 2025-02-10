@@ -13,7 +13,9 @@ const ReviewList = () => {
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/reviews/all');
+      const response = await fetch(
+        'https://bpp-website.onrender.com/api/reviews/all'
+      );
       const data = await response.json();
 
       if (!response.ok) {
