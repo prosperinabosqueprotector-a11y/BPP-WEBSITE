@@ -33,6 +33,18 @@ export const navItems = [
   { text: 'Juegos', emoji: '🎮', route: '/juegos' },
   { text: 'Comunidad', emoji: '📸', route: '/comunidad' },
   { text: 'Reseñas', emoji: '⭐', route: '/reviews' },
+  {
+    text: 'Subir Imagen',
+
+    route: '/upload',
+    emoji: '📤',
+  },
+  {
+    text: 'Galería',
+
+    route: '/gallery',
+    emoji: '🖼️',
+  },
 ];
 
 
@@ -40,37 +52,44 @@ export const learningOptions = [
   {
     title: 'Mapa del Bosque',
     image:
-      'https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+      'https://res.cloudinary.com/dbiarx9tr/image/upload/v1739160705/wbrcn6pihiafhw5vgp3l.jpg',
     icon: '🗺️',
     route: '/mapa',
   },
   {
     title: 'Descubre Plantas',
     image:
-      'https://images.unsplash.com/photo-1520412099551-62b6bafeb5bb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+      'https://res.cloudinary.com/dbiarx9tr/image/upload/v1739160796/nwvmzzbypi5ih03g8mlq.png',
     icon: '🌿',
     route: '/flora',
   },
   {
     title: 'Animales Amigos',
     image:
-      'https://images.unsplash.com/photo-1546182990-dffeafbe841d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+      'https://res.cloudinary.com/dbiarx9tr/image/upload/v1739160846/zh16f2kscu94yeegprku.jpg',
     icon: '🦊',
     route: '/fauna',
   },
   {
     title: 'Juegos del Bosque',
     image:
-      'https://images.unsplash.com/photo-1511497584788-876760111969?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+      'https://res.cloudinary.com/dbiarx9tr/image/upload/v1739160899/bw8vv0teo7w4cq16bgzm.png',
     icon: '🎮',
     route: '/juegos',
   },
   {
     title: 'Comunidad',
     image:
-      'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+      'https://res.cloudinary.com/dbiarx9tr/image/upload/v1739161039/bojwtrg2w2vjgfnsr1l5.jpg',
     icon: '📸',
     route: '/comunidad',
+  },
+  {
+    title: 'Cuadernillo Educativo',
+    image:
+      'https://res.cloudinary.com/dbiarx9tr/image/upload/v1739161039/bojwtrg2w2vjgfnsr1l5.jpg',
+    icon: '📚',
+    route: '/cuadernillo',
   },
 ];
 
@@ -106,7 +125,7 @@ export const animalCategories = [
       {
         name: 'Caimán',
         image:
-          'https://cdn.pixabay.com/photo/2014/01/14/18/31/nile-crocodile-245013_1280.jpg',
+          'https://res.cloudinary.com/dbiarx9tr/image/upload/v1739077299/plants/Plantas%20Toxicas/ogrc4tiyg2boayarcdgk.jpg',
       },
     ],
   },

@@ -15,8 +15,10 @@ import Fauna from './pages/Fauna';
 import Flora from './pages/Flora';
 import Juegos from './pages/Juegos';
 import Mapa from './pages/Mapa';
-import Reviews from './pages/Reviews'; // ✅ Página de reseñas
-import PDFViewer from './pages/PDFViewer'; // ✅ Visor de PDF
+import Reviews from './pages/Reviews';
+import PDFViewer from './pages/PDFViewer';
+import UploadPage from './pages/UploadPage';
+import GalleryPage from './pages/GalleryPage';
 import { colorSchemes, navItems } from './data/appData';
 
 // Función para determinar la estación del año en Ecuador
@@ -161,6 +163,15 @@ export default function App() {
                     path="/pdf"
                     element={<PDFViewer pdfUrl="/cuadernillo.pdf" />}
                   />
+                  <Route
+                    path="/upload"
+                    element={<UploadPage theme={theme} />}
+                  />
+                  <Route
+                    path="/gallery"
+                    element={<GalleryPage theme={theme} />}
+                  />
+                  
                 </Routes>
               </div>
             </main>

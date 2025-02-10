@@ -31,7 +31,7 @@ const plantCategories = [
           'https://th.bing.com/th/id/OIP.2Enlb-fRoVZ__EBsB84BeQAAAA?rs=1&pid=ImgDetMain',
       },
       {
-        name: 'Encuentra las Diferencias',
+        name: 'Encuentra las Cartas',
         image:
           'https://i.pinimg.com/originals/69/8c/39/698c39cc0fe08151a185ad0f98c7f9bf.jpg',
       },
@@ -123,7 +123,7 @@ const PlantCategory = ({
                         onSelectQuiz();
                       } else if (plant.name === 'Puzzle') {
                         onSelectPuzzle();
-                      } else if (plant.name === 'Encuentra las Diferencias') {
+                      } else if (plant.name === 'Encuentra las Cartas') {
                         onSelectFindDifferences();
                       }
                     }}
