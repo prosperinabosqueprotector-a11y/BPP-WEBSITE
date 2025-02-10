@@ -35,6 +35,7 @@ export const navItems = [
   { text: 'Reseñas', emoji: '⭐', route: '/reviews' },
 ];
 
+
 export const learningOptions = [
   {
     title: 'Mapa del Bosque',
