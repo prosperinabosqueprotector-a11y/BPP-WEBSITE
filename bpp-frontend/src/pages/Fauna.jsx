@@ -9,8 +9,29 @@ import {
   Box,
   Container,
   CircularProgress,
+  styled,
 } from '@mui/material';
 
+const StyledCard = styled(Card)({
+  width: 200,
+  position: 'relative',
+  '&:hover .description': {
+    maxHeight: '100px',
+    opacity: 1,
+  },
+});
+
+const DescriptionOverlay = styled(Box)({
+  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  color: 'white',
+  padding: '8px',
+  opacity: 0,
+  maxHeight: '0',
+  overflow: 'hidden',
+  transition: 'all 0.3s ease',
+  fontSize: '0.875rem',
+  textAlign: 'center',
+});
 const Fauna = () => {
   const [animals, setAnimals] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -66,7 +87,7 @@ const Fauna = () => {
           {animals
             .filter((a) => !selectedCategory || a.category === selectedCategory)
             .map((animal, index) => (
-              <Card key={index} sx={{ width: 200 }}>
+              <StyledCard key={index}>
                 <CardMedia
                   component="img"
                   height="140"
@@ -81,7 +102,10 @@ const Fauna = () => {
                     {animal.name}
                   </Typography>
                 </CardContent>
-              </Card>
+                <DescriptionOverlay className="description">
+                  {animal.description}
+                </DescriptionOverlay>
+              </StyledCard>
             ))}
         </Box>
       )}

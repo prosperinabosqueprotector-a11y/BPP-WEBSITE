@@ -18,7 +18,7 @@ import Reviews from './pages/Reviews'; // ✅ Importamos la nueva página de res
 import UploadPage from './pages/UploadPage';
 import GalleryPage from './pages/GalleryPage';
 import { colorSchemes, navItems } from './data/appData';
-
+import Cuadernillo from './pages/Cuadernillo';
 export default function App() {
   const [activeItem, setActiveItem] = useState('Inicio');
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -133,6 +133,7 @@ export default function App() {
                   <Route path="/flora" element={<Flora theme={theme} />} />
                   <Route path="/juegos" element={<Juegos theme={theme} />} />
                   <Route path="/mapa" element={<Mapa theme={theme} />} />
+                  <Route path="/cuadernillo" element={<Cuadernillo />} />
                   <Route
                     path="/reviews"
                     element={<Reviews theme={theme} />}

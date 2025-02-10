@@ -8,11 +8,17 @@
   "scripts": {
     "prepare": "husky install",
     "lint-staged": "npm run lint-staged --workspace=bpp-frontend && npm run lint-staged --workspace=bpp-backend",
-    "start": "concurrently \"npm run dev --workspace=bpp-frontend\" \"npm run dev --workspace=bpp-backend\""
+    "start": "concurrently \"npm run dev --workspace=bpp-frontend\" \"npm run dev --workspace=bpp-backend\"",
+    "seed": "node seedData.js"
   },
   "devDependencies": {
+    "@eslint/js": "9.20.0",
+    "eslint": "9.20.0",
+    "eslint-plugin-react": "7.37.4",
+    "globals": "15.14.0",
     "husky": "9.1.6",
-    "lint-staged": "13.3.0"
+    "lint-staged": "13.3.0",
+    "typescript-eslint": "8.23.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -25,6 +31,7 @@
     "dotenv": "16.4.7",
     "multer": "1.4.5-lts.1",
     "react-dnd": "16.0.1",
-    "react-dnd-html5-backend": "16.0.1"
+    "react-dnd-html5-backend": "16.0.1",
+    "react-pdf": "9.2.1"
   }
 }

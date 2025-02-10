@@ -37,182 +37,188 @@ router.get('/status', (req, res) => {
   }
 });
 
-// Upload route with enhanced error handling
 router.post('/upload', upload.single('image'), async (req, res) => {
-  const startTime = Date.now();
-
-  if (!req.file) {
-    console.error('❌ Upload Error: No file received', {
-      headers: req.headers,
-      timestamp: new Date().toISOString()
-    });
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
   try {
-    console.log('📤 Upload Started:', {
-      filename: req.file.originalname,
-      size: `${(req.file.size / 1024).toFixed(2)}KB`,
-      mimetype: req.file.mimetype,
-      timestamp: new Date().toISOString()
-    });
-
-    const b64 = Buffer.from(req.file.buffer).toString('base64');
-    const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+    const { section, category, name } = req.body;
+    const file = req.file;
     
-    const uploadResponse = await cloudinary.uploader.unsigned_upload(dataURI, CLOUDINARY_UPLOAD_PRESET, {
-      folder: 'uploads',
-      resource_type: 'auto',
-      public_id: `image-${Date.now()}`
-    }).catch(error => {
-      console.error('❌ Cloudinary Error:', {
-        message: error.message,
-        code: error.http_code,
-        type: error.name,
-        details: error.error || {},
-        timestamp: new Date().toISOString()
-      });
-      throw error;
+    const b64 = Buffer.from(file.buffer).toString('base64');
+    const dataURI = `data:${file.mimetype};base64,${b64}`;
+
+    const result = await cloudinary.uploader.upload(dataURI, {
+      folder: `${section}/${category}`,
+      public_id: name
     });
 
-    const duration = Date.now() - startTime;
-    console.log('✅ Upload Successful:', {
-      public_id: uploadResponse.public_id,
-      url: uploadResponse.secure_url,
-      duration: `${duration}ms`,
-      timestamp: new Date().toISOString()
-    });
+    const appDataPath = path.join(__dirname, '../../bpp-frontend/src/data/appData.js');
+    let content = await fs.readFile(appDataPath, 'utf8');
 
-    res.json({
-      url: uploadResponse.secure_url,
-      public_id: uploadResponse.public_id,
-      duration: duration
-    });
+    if (section === 'learning') {
+      content = content.replace(
+        new RegExp(`(title: '${name}',[\\s\\S]*?image:)[^,}]*`),
+        `$1 '${result.secure_url}'`
+      );
+    } else {
+      content = content.replace(
+        new RegExp(`(title: '${category}',[\\s\\S]*?name: '${name}',[\\s\\S]*?image:)[^,}]*`),
+        `$1 '${result.secure_url}'`
+      );
+    }
+
+    await fs.writeFile(appDataPath, content);
+    res.json({ url: result.secure_url });
   } catch (error) {
-    console.error('❌ Upload Failed:', {
-      error: error.message,
-      stack: error.stack,
-      code: error.http_code,
-      type: error.name,
-      details: error.error || {},
-      duration: `${Date.now() - startTime}ms`,
-      timestamp: new Date().toISOString()
-    });
-    
-    res.status(500).json({ 
-      error: 'Upload failed',
-      details: error.message,
-      code: error.http_code || 500,
-      timestamp: new Date().toISOString()
-    });
+    res.status(500).json({ error: error.message });
   }
 });
+
+
 
 // Get images route with enhanced error handling
 router.get('/images', async (req, res) => {
-  const startTime = Date.now();
-
-  try {
-    console.log('🔍 Fetching images...');
-    const { resources } = await cloudinary.search
-      .expression('folder:uploads')
-      .sort_by('created_at', 'desc')
-      .max_results(30)
-      .execute()
-      .catch(error => {
-        console.error('❌ Search Error:', {
-          message: error.message,
-          code: error.http_code,
-          type: error.name,
-          details: error.error || {},
-          timestamp: new Date().toISOString()
-        });
-        throw error;
-      });
-
-    const duration = Date.now() - startTime;
-    console.log('✅ Images Found:', {
-      count: resources.length,
-      duration: `${duration}ms`,
-      timestamp: new Date().toISOString()
-    });
-    
-    const images = resources.map(file => ({
-      public_id: file.public_id,
-      url: file.secure_url,
-      created_at: file.created_at,
-      format: file.format,
-      size: file.bytes,
-      width: file.width,
-      height: file.height
-    }));
-
-    res.json({ images, duration });
-  } catch (error) {
-    console.error('❌ Fetch Failed:', {
-      error: error.message,
-      stack: error.stack,
-      code: error.http_code,
-      type: error.name,
-      details: error.error || {},
-      duration: `${Date.now() - startTime}ms`,
-      timestamp: new Date().toISOString()
-    });
-
-    res.status(500).json({
-      error: 'Failed to fetch images',
-      details: error.message,
-      code: error.http_code || 500,
-      timestamp: new Date().toISOString()
-    });
-  }
-});
-
-
-// Health check endpoint
-router.get('/health', (req, res) => {
-  try {
-    const config = cloudinary.config();
-    res.json({
-      status: 'healthy',
-      cloudinary: {
-        connected: true,
+    try {
+      console.log('🔍 Starting image fetch...');
+      
+      // Debug Cloudinary config
+      const config = cloudinary.config();
+      console.log('Cloudinary Config:', {
         cloud_name: config.cloud_name,
-        api_key: config.api_key ? 'present' : 'missing',
-      },
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'unhealthy',
-      error: error.message,
-      timestamp: new Date().toISOString()
-    });
-  }
-});
-
+        folder: 'upload'
+      });
+  
+      const result = await cloudinary.search
+        .expression('folder:upload/*')
+        .with_field('context')
+        .max_results(100)
+        .execute();
+  
+      console.log('Search Result:', {
+        total: result.total_count,
+        hasResources: !!result.resources,
+        resourceCount: result.resources?.length
+      });
+  
+      if (!result.resources?.length) {
+        return res.json({ 
+          images: [],
+          message: 'No images found'
+        });
+      }
+  
+      const images = result.resources.map(file => ({
+        public_id: file.public_id,
+        url: file.secure_url,
+        created_at: file.created_at,
+        format: file.format,
+        size: file.bytes
+      }));
+  
+      console.log(`✅ Found ${images.length} images`);
+      res.json({ images });
+    } catch (error) {
+      console.error('❌ Fetch Failed:', {
+        message: error.message,
+        stack: error.stack,
+        details: error.error || {}
+      });
+      res.status(500).json({
+        error: 'Failed to fetch images',
+        details: error.message
+      });
+    }
+  });
 // Test upload endpoint
-router.post('/test-upload', upload.single('image'), async (req, res) => {
-  try {
-    const testImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+router.use((req, res, next) => {
+    if (req.params.publicId) {
+      req.params.publicId = decodeURIComponent(req.params.publicId);
+    }
+    next();
+  });
+router.delete('/delete/*', async (req, res) => {
+    try {
+      
+      const fullPath = req.params[0];
+      
+      
+      const result = await cloudinary.uploader.destroy(fullPath, {
+        invalidate: true
+      });
+  
+      if (result.result !== 'ok') {
+        throw new Error('Failed to delete from Cloudinary');
+      }
+  
+      res.json({ 
+        success: true,
+        message: 'Image deleted successfully'
+      });
+  
+    } catch (error) {
+      console.error('Delete Error:', error);
+      res.status(500).json({ 
+        success: false,
+        error: error.message 
+      });
+    }
+  });
+  
+router.post('/upload-to-category', upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+  
+      const { category, subCategory, name } = req.body;
+      if (!category || !subCategory || !name) {
+        return res.status(400).json({ error: 'Category, subCategory and name are required' });
+      }
+  
+      const b64 = Buffer.from(req.file.buffer).toString('base64');
+      const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+  
+      const result = await cloudinary.uploader.upload(dataURI, {
+        folder: `${category}/${subCategory}`,
+        resource_type: 'auto'
+      });
+  
+      // Update appData
+      const appDataPath = path.join(__dirname, '../..', 'frontend/src/data/appData.js');
+      const appData = require(appDataPath);
+  
+      if (category === 'animals') {
+        const categoryIndex = appData.animalCategories.findIndex(cat => cat.title === subCategory);
+        if (categoryIndex !== -1) {
+          appData.animalCategories[categoryIndex].animals.push({
+            name,
+            image: result.secure_url
+          });
+        }
+      } else if (category === 'plants') {
+        const categoryIndex = appData.plantCategories.findIndex(cat => cat.title === subCategory);
+        if (categoryIndex !== -1) {
+          appData.plantCategories[categoryIndex].plants.push({
+            name,
+            image: result.secure_url
+          });
+        }
+      }
+  
     
-    const result = await cloudinary.uploader.unsigned_upload(
-      testImage,
-      CLOUDINARY_UPLOAD_PRESET,
-      { folder: 'test' }
-    );
-    
-    res.json({
-      status: 'success',
-      result
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      error: error.message
-    });
-  }
-});
-
-// ...existing code...
+      fs.writeFileSync(
+        appDataPath,
+        `export const appData = ${JSON.stringify(appData, null, 2)};`
+      );
+  
+      res.json({
+        url: result.secure_url,
+        public_id: result.public_id,
+        category,
+        subCategory,
+        name
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
 module.exports = router;

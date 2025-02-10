@@ -18,12 +18,9 @@ const quizRouter = require("./routes/quiz");
 const scoresRouter = require("./routes/scores");
 const dataRouter = require("./routes/data");
 const reviewsRouter = require("./routes/reviews"); // ✅ Importado correctamente
-
+const appDataRouter = require('./routes/appData');
 // 🔥 Configurar Middleware
-app.use(cors({ origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,}));
+app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -46,6 +43,7 @@ app.use("/api/scores", scoresRouter); // 📌 Rutas para guardar puntuaciones
 app.use("/api/data", dataRouter); // 📌 Rutas para información de flora/fauna
 app.use("/api/reviews", reviewsRouter); // 📌 Rutas para reseñas
 app.use('/api/cloudinary', cloudinaryRouter);// 🔥 Manejo de errores (404)
+app.use('/api/appdata', appDataRouter);
 app.use((req, res, next) => {
   next(createError(404));
 });
