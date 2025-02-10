@@ -6,7 +6,6 @@
     "bpp-backend"
   ],
   "scripts": {
-    "prepare": "husky install",
     "lint-staged": "npm run lint-staged --workspace=bpp-frontend && npm run lint-staged --workspace=bpp-backend",
     "start": "concurrently \"npm run dev --workspace=bpp-frontend\" \"npm run dev --workspace=bpp-backend\"",
     "build": "npm run build --workspace=bpp-frontend",
