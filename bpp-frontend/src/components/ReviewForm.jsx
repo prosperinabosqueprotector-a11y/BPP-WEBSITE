@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Box,
   TextField,
@@ -6,55 +6,69 @@ import {
   Typography,
   Rating,
   Paper,
-} from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
+} from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
+import { auth } from "../config/firebaseConfig";
 
-const ReviewForm = ({ onReviewSubmitted }) => {
-  const [user, setUser] = useState('');
+const API_URL = import.meta.env.VITE_API_URL;
+
+const ReviewForm = ({ onReviewSubmitted, role }) => {
   const [rating, setRating] = useState(5);
-  const [comment, setComment] = useState('');
-  const [error, setError] = useState('');
+  const [comment, setComment] = useState("");
+  const [error, setError] = useState("");
+
+  // Si no hay rol, asumimos que no está autenticado (el padre lo setea a null cuando no hay sesión)
+  const isAuthed = Boolean(role);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!user.trim() || !comment.trim()) {
-      setError('Por favor, completa todos los campos.');
+    const user = auth.currentUser;
+    if (!isAuthed || !user) {
+      setError("Debes iniciar sesión para dejar una reseña.");
+      return;
+    }
+
+    if (!comment.trim()) {
+      setError("El comentario no puede estar vacío.");
       return;
     }
 
     try {
-      const response = await fetch(
-        'https://bpp-website.onrender.com/api/reviews/add',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: user,
-            rating,
-            comment,
-            date: new Date().toISOString(),
-          }),
-        }
+      const token = await user.getIdToken();
+      const endpoint =
+        role === "profesor"
+          ? `${API_URL}/api/reviews/add-approved`
+          : `${API_URL}/api/reviews/add-pending`;
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          comment,
+          rating,
+          date: new Date().toISOString(),
+        }),
+      });
+
+      if (!response.ok) throw new Error("Error al enviar la reseña");
+
+      alert(
+        role === "profesor"
+          ? "Reseña enviada y aprobada"
+          : "Reseña enviada, pendiente de aprobación"
       );
 
-      if (!response.ok) {
-        throw new Error('Error al enviar la reseña');
-      }
-
-      alert('Reseña enviada. Pendiente de aprobación.');
-
-      // Resetear el formulario
-      setUser('');
       setRating(5);
-      setComment('');
-      setError('');
-
-      // Actualizar la lista de reseñas
+      setComment("");
+      setError("");
       onReviewSubmitted();
-    } catch (error) {
-      console.error('❌ Error al enviar la reseña:', error);
-      setError('Error al enviar la reseña.');
+    } catch (err) {
+      console.error("❌ Error:", err);
+      setError(err.message || "Error al enviar reseña.");
     }
   };
 
@@ -63,49 +77,48 @@ const ReviewForm = ({ onReviewSubmitted }) => {
       elevation={6}
       sx={{
         maxWidth: 500,
-        margin: 'auto',
+        margin: "auto",
         padding: 4,
-        textAlign: 'center',
+        textAlign: "center",
         mt: 4,
         borderRadius: 2,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: "#f9f9f9",
       }}
     >
-      <Typography
-        variant="h5"
-        sx={{ mb: 2, fontWeight: 'bold', color: '#333' }}
-      >
+      <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold", color: "#333" }}>
         Deja tu reseña
       </Typography>
+
+      {!isAuthed && (
+        <Typography variant="body2" color="warning.main" sx={{ mb: 2 }}>
+          Debes iniciar sesión para dejar una reseña.
+        </Typography>
+      )}
+
       {error && (
         <Typography variant="body2" color="error" sx={{ mb: 2 }}>
           {error}
         </Typography>
       )}
-      <TextField
-        label="Tu Nombre"
-        fullWidth
-        required
-        value={user}
-        onChange={(e) => setUser(e.target.value)}
-        sx={{ mb: 2 }}
-      />
+
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
           mb: 2,
         }}
       >
-        <Typography variant="body1" sx={{ mr: 1, color: '#555' }}>
+        <Typography variant="body1" sx={{ mr: 1, color: "#555" }}>
           Calificación:
         </Typography>
         <Rating
           value={rating}
           onChange={(e, newValue) => setRating(newValue)}
+          readOnly={!isAuthed}            // deshabilitado si no hay sesión
         />
       </Box>
+
       <TextField
         label="Comentario"
         multiline
@@ -114,8 +127,10 @@ const ReviewForm = ({ onReviewSubmitted }) => {
         required
         value={comment}
         onChange={(e) => setComment(e.target.value)}
+        disabled={!isAuthed}              // deshabilitado si no hay sesión
         sx={{ mb: 2 }}
       />
+
       <Button
         type="submit"
         variant="contained"
@@ -123,6 +138,8 @@ const ReviewForm = ({ onReviewSubmitted }) => {
         fullWidth
         startIcon={<SendIcon />}
         onClick={handleSubmit}
+        disabled={!isAuthed}              // botón bloqueado si no hay sesión
+        title={!isAuthed ? "Inicia sesión para enviar una reseña" : ""}
       >
         Enviar Reseña
       </Button>

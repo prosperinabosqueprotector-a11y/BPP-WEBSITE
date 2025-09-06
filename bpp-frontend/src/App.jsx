@@ -19,6 +19,8 @@ import Reviews from './pages/Reviews';
 import PDFViewer from './pages/PDFViewer';
 import UploadPage from './pages/UploadPage';
 import GalleryPage from './pages/GalleryPage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import { colorSchemes, navItems } from './data/appData';
 
 // Función para determinar la estación del año en Ecuador
@@ -30,7 +32,7 @@ const getSeason = () => {
 export default function App() {
   const [activeItem, setActiveItem] = useState('Inicio');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [colorScheme, setColorScheme] = useState('spring');
+  const [colorScheme, setColorScheme] = useState('summer');
   const [sidebarWidth, setSidebarWidth] = useState(256);
   const isSmallScreen = useMediaQuery('(max-width:960px)');
 
@@ -171,7 +173,8 @@ export default function App() {
                     path="/gallery"
                     element={<GalleryPage theme={theme} />}
                   />
-                  
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/signup" element={<SignupPage />} />
                 </Routes>
               </div>
             </main>

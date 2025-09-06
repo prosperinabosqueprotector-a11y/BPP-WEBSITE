@@ -1,4 +1,5 @@
 export const colorSchemes = {
+  //Solo se esta usando summer y winter
   spring: {
     primary: '#7cb342',
     secondary: '#ffeb3b',

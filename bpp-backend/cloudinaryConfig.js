@@ -1,6 +1,5 @@
 const cloudinary = require('cloudinary').v2;
 
-
 cloudinary.config({
     cloud_name: 'dbiarx9tr',  
     api_key: '192948425558222',      

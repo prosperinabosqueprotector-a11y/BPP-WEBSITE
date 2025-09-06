@@ -6,16 +6,30 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Button,
 } from '@mui/material';
-import { MenuRounded, Palette } from '@mui/icons-material';
+import { MenuRounded } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "../config/firebaseConfig"; 
 
-const Header = ({
-  toggleSidebar,
-  handleColorSchemeMenuOpen,
-  anchorEl,
-  handleColorSchemeMenuClose,
-  handleColorSchemeChange,
-}) => {
+const Header = ({ toggleSidebar }) => {
+  const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    navigate("/");
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
     <AppBar position="static" color="primary" elevation={0}>
       <Toolbar>
@@ -35,19 +49,40 @@ const Header = ({
         >
           Bosque Mágico
         </Typography>
+
         <div className="flex items-center space-x-4">
           <div className="flex items-center bg-opacity-20 bg-white rounded-full px-3 py-1">
             <span className="text-yellow-400 mr-2">🍃</span>
-            <Typography variant="body1">25795</Typography>
+            <Typography variant="body1">25795</Typography> 
           </div>
           <div className="flex items-center bg-opacity-20 bg-white rounded-full px-3 py-1">
             <span className="mr-2">🦉</span>
             <Typography variant="body1">15</Typography>
           </div>
-          <Avatar alt="User Avatar" src="/placeholder.svg?height=40&width=40" />
-          <Typography variant="body1" className="hidden sm:block">
-            Explorador
-          </Typography>
+
+          {!currentUser ? (
+            <>
+              <Button color="inherit" onClick={() => navigate('/login')}>
+                Login
+              </Button>
+              <Button variant="outlined" color="inherit" onClick={() => navigate('/signup')}>
+                Sign Up
+              </Button>
+            </>
+          ) : (
+            <>
+              <Avatar
+                alt={currentUser.displayName || "User"}
+                src={currentUser.photoURL || "/placeholder.svg"}
+              />
+              <Typography variant="body1" className="hidden sm:block">
+                {currentUser.displayName || "Explorador"}
+              </Typography>
+              <Button color="inherit" onClick={handleLogout}>
+                Logout
+              </Button>
+            </>
+          )}
         </div>
       </Toolbar>
     </AppBar>

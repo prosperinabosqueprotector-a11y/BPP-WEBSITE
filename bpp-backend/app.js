@@ -13,12 +13,14 @@ const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const puzzleRouter = require("./routes/puzzle");
 const cloudinaryRouter = require('./routes/cloudinary');
+
 // Importa las nuevas rutas para Firebase Firestore
 const quizRouter = require("./routes/quiz");
 const scoresRouter = require("./routes/scores");
 const dataRouter = require("./routes/data");
-const reviewsRouter = require("./routes/reviews"); // ✅ Importado correctamente
+const reviewsRouter = require("./routes/reviews");
 const appDataRouter = require('./routes/appData');
+
 // 🔥 Configurar Middleware
 app.use(cors());
 app.use(logger("dev"));
@@ -26,6 +28,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`, {
     timestamp: new Date().toISOString(),
@@ -34,6 +37,7 @@ app.use((req, res, next) => {
   });
   next();
 });
+
 // 🔥 Configurar rutas después del middleware
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
@@ -44,16 +48,18 @@ app.use("/api/data", dataRouter); // 📌 Rutas para información de flora/fauna
 app.use("/api/reviews", reviewsRouter); // 📌 Rutas para reseñas
 app.use('/api/cloudinary', cloudinaryRouter);// 🔥 Manejo de errores (404)
 app.use('/api/appdata', appDataRouter);
+
 app.use((req, res, next) => {
   next(createError(404));
 });
+
 app.get('/', (req, res) => {
   res.json({ status: 'Server is running' });
 });
 
 
 // 🔥 Manejo de errores generales
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
   res.status(err.status || 500);
