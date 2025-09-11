@@ -15,11 +15,12 @@ import 'leaflet/dist/leaflet.css';
 
 // Forest-themed SVG icon
 const forestIcon = `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FFFFFF" width="16px" height="16px">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#2E7D32" width="16px" height="16px">
   <path d="M0 0h24v24H0z" fill="none"/>
   <path d="M14 6l-3.75 5 2.85 3.8-1.6 1.2C9.81 13.75 7 10 7 10l-6 8h22L14 6z"/>
 </svg>
 `;
+
 
 // Custom icon creator function
 const createForestIcon = () => {
@@ -39,50 +40,58 @@ const createForestIcon = () => {
 const pointsOfInterest = [
   {
     id: 1,
-    name: 'Parque de Diversiones',
-    lat: -2.1527,
-    lng: -79.9614,
+    name: 'Casa de Interpretación',
+    lat: -2.151852,
+    lng: -79.960755,
     description:
-      '¡Un lugar lleno de emocionantes juegos y atracciones para toda la familia!',
+      'Pequeño centro de inicio con mapas y recursos para conocer la flora y fauna del bosque.',
   },
   {
     id: 2,
-    name: 'Museo Interactivo',
-    lat: -2.1537,
-    lng: -79.9624,
+    name: 'Estacion Fotovoltaica 1',
+    lat: -2.1530556,
+    lng: -79.96388888888889,
     description:
-      'Explora la ciencia y la historia de forma divertida e interactiva.',
+      'Pequeño punto con paneles solares en el sendero',
   },
   {
     id: 3,
-    name: 'Zoológico',
-    lat: -2.1517,
-    lng: -79.9604,
+    name: 'Estacion Fotovoltaica 2',
+    lat: -2.1525,
+    lng: -79.96388888888889,
     description:
-      'Conoce animales fascinantes de todo el mundo y aprende sobre la conservación.',
+      'Otro punto de paneles solares.',
   },
   {
     id: 4,
-    name: 'Jardín Botánico',
-    lat: -2.1547,
-    lng: -79.9634,
+    name: 'Elefante Sonriente',
+    lat: -2.1527778,
+    lng: -79.96333333333334,
     description:
-      'Descubre la belleza y diversidad de las plantas en este hermoso jardín.',
+      'Un árbol singular cuya forma recuerda a la silueta de un elefante sonriente.',
   },
   {
     id: 5,
-    name: 'Playa',
-    lat: -2.1557,
-    lng: -79.9644,
-    description: '¡Disfruta del sol y la arena en esta hermosa playa!',
+    name: 'Zona de Descanso',
+    lat: -2.1522222,
+    lng: -79.96416666666667,
+    description: 'Espacio con bancas y sombra ideal para relajarse y recuperar energías durante el recorrido',
   },
   {
     id: 6,
-    name: 'Acuario',
-    lat: -2.1567,
-    lng: -79.9654,
+    name: 'Mirador',
+    lat: -2.155556,
+    lng: -79.962500,
     description:
-      'Explora el fascinante mundo submarino en este moderno acuario.',
+      'Un punto panorámico que ofrece vistas privilegiadas del bosque y sus alrededores.',
+  },
+  {
+    id: 7,
+    name: 'Vivero Forestal',
+    lat: -2.152713,
+    lng: -79.961740,
+    description:
+      'Área destinada al cuidado de plantas nativas.',
   },
 ];
 
@@ -131,7 +140,7 @@ export default function Mapa({ theme }) {
               fontWeight: 800,
             }}
           >
-            🗺️ Mapa de Aventuras 🎉
+            Mapa de Aventuras 🎉
           </Typography>
         </Box>
 
@@ -146,8 +155,8 @@ export default function Mapa({ theme }) {
           }}
         >
           <MapContainer
-            center={[-2.1527512334403665, -79.96147735900286]}
-            zoom={16}
+            center={[-2.153573, -79.962389]}
+            zoom={17}
             style={{ height: '100%', width: '100%' }}
           >
             <TileLayer

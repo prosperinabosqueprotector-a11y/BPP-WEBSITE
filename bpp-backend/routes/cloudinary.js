@@ -37,6 +37,7 @@ router.get('/status', (req, res) => {
   }
 });
 
+// Sube una imagen
 router.post('/upload', upload.single('image'), async (req, res) => {
   try {
     const { section, category, name } = req.body;
@@ -115,6 +116,7 @@ router.get('/images', async (req, res) => {
   }
 });
 
+// Trae recursos (imagenes/videos) de una carpeta en específico
 router.get('/images/:folder', async (req, res) => {
   const { folder } = req.params;
   try {
@@ -193,9 +195,7 @@ router.use((req, res, next) => {
   
 router.delete('/delete/*', async (req, res) => {
     try {
-      
       const fullPath = req.params[0];
-      
       
       const result = await cloudinary.uploader.destroy(fullPath, {
         invalidate: true
@@ -260,7 +260,6 @@ router.post('/upload-to-category', upload.single('image'), async (req, res) => {
         }
       }
   
-    
       fs.writeFileSync(
         appDataPath,
         `export const appData = ${JSON.stringify(appData, null, 2)};`

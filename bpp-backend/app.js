@@ -44,7 +44,7 @@ app.use("/users", usersRouter);
 app.use("/api", puzzleRouter);
 app.use("/api/quiz", quizRouter); // 📌 Rutas para preguntas del quiz
 app.use("/api/scores", scoresRouter); // 📌 Rutas para guardar puntuaciones
-app.use("/api/data", dataRouter); // 📌 Rutas para información de flora/fauna
+app.use("/api/data", dataRouter); // 📌 Rutas para información de firebase
 app.use("/api/reviews", reviewsRouter); // 📌 Rutas para reseñas
 app.use('/api/cloudinary', cloudinaryRouter);// 🔥 Manejo de errores (404)
 app.use('/api/appdata', appDataRouter);
