@@ -14,7 +14,7 @@ const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://bpp-website-4d581-default-rtdb.firebaseio.com',
+    databaseURL: 'https://bpp-website-fa794-default-rtdb.firebaseio.com',
   });
 }
 

@@ -82,7 +82,7 @@ const GalleryPage = ({ theme }) => {
     const fetchImages = async () => {
       try {
         const response = await fetch(
-          `${API_URL}/api/cloudinary/images/upload`
+          `${API_URL}/api/cloudinary/images`
         );
         const data = await response.json();
         console.log('Received images:', data);

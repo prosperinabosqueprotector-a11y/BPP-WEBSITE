@@ -99,9 +99,9 @@ export default function Comunidad({ theme }) {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setPosts(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     });
-  
+
     return () => unsubscribe();
-  }, []);  
+  }, []);
 
   // Cargar mis publicaciones (independiente de aprobado)
   useEffect(() => {
@@ -127,7 +127,7 @@ export default function Comunidad({ theme }) {
   const crearPublicacion = async () => {
     if (!user) return alert("Debes iniciar sesión para publicar");
     if (!newDescription.trim()) return alert("Agrega una descripción");
-  
+
     try {
       await addDoc(collection(db, "posts"), {
         uid: user.uid,
@@ -140,14 +140,14 @@ export default function Comunidad({ theme }) {
         likes: [],
         commentCount: 0,
       });
-  
+
       setOpenDialog(false);
       setNewDescription("");
       setNewImageUrl("");
     } catch (error) {
       console.error("Error al crear publicación:", error);
     }
-  };  
+  };
 
   // Aprobar publicación (solo profesor)
   const approvePost = async (postId) => {
@@ -194,7 +194,7 @@ export default function Comunidad({ theme }) {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setComments(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-    });    
+    });
 
     return unsubscribe;
   };
@@ -326,7 +326,7 @@ export default function Comunidad({ theme }) {
                   <Box className="flex justify-between items-center">
                     <Box className="flex items-center space-x-1">
                       <IconButton size="small">
-                        <Favorite fontSize="small"/>
+                        <Favorite fontSize="small" />
                       </IconButton>
                       <Typography variant="body2">{post.likes?.length || 0}</Typography>
                     </Box>
@@ -358,14 +358,14 @@ export default function Comunidad({ theme }) {
     if (!window.confirm("¿Seguro que deseas eliminar este comentario?")) return;
     try {
       await deleteDoc(doc(db, "posts", postId, "comments", commentId));
-  
+
       // Disminuir contador en el post
       const postRef = doc(db, "posts", postId);
       await updateDoc(postRef, { commentCount: (selectedPost.commentCount || 1) - 1 });
     } catch (error) {
       console.error("Error eliminando comentario:", error);
     }
-  };  
+  };
 
   const PendingPostsTab = () => (
     <Box className="space-y-6">
@@ -416,7 +416,7 @@ export default function Comunidad({ theme }) {
       )}
     </Box>
   );
-  
+
   if (loading) return <Typography>Cargando...</Typography>;
 
   return (
