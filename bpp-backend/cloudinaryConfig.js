@@ -1,14 +1,9 @@
-const cloudinary = require('cloudinary').v2;
+import { v2 as cloudinary } from 'cloudinary';
 
 cloudinary.config({
-    cloud_name: 'dbiarx9tr',  
-    api_key: '192948425558222',      
-    api_secret: '8xwyN40RmNIkmwKFg6Nf6opx-dk' 
-  });
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-
-const CLOUDINARY_UPLOAD_PRESET = 'images';
-module.exports = {
-  cloudinary,
-  CLOUDINARY_UPLOAD_PRESET
-};
+export default cloudinary;

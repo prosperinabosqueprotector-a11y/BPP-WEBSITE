@@ -27,11 +27,10 @@ const GalleryPage = ({ theme }) => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [role, setRole] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [role, setRole] = useState(null);
 
-  // --- Obtener rol ---
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -39,65 +38,21 @@ const GalleryPage = ({ theme }) => {
           const idTokenResult = await user.getIdTokenResult();
           const userRole = idTokenResult.claims.rol;
           setRole(userRole);
+          const response = await fetch(`${API_URL}/api/cloudinary/images`);
+          const data = await response.json();
+          setImages(data.images || []);
         } catch (error) {
-          console.error("Error obteniendo claims:", error);
+          console.error("Error obteniendo datos:", error);
+          setError("Error al cargar la galería.");
         }
       } else {
-        setRole(null); // visitante
+        setRole(null); // Usuario no autenticado
       }
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  // --- Eliminar imagen/video ---
-  const handleDelete = async (publicId) => {
-    try {
-      const response = await fetch(
-        `${API_URL}/api/cloudinary/delete/${publicId}`,
-        {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-      if (!response.ok) throw new Error('Failed to delete image');
-      setImages((prevImages) =>
-        prevImages.filter((img) => img.public_id !== publicId)
-      );
-      setDeleteDialog(false);
-    } catch (error) {
-      console.error('Delete Error:', error);
-      alert('Error deleting image: ' + error.message);
-    }
-  };
-
-  // --- Manejar error de media ---
-  const handleMediaError = (e, mediaId) => {
-    console.error(`Failed to load media ${mediaId}:`, e);
-    e.target.src = 'https://via.placeholder.com/200?text=Not+Found';
-  };
-
-  // --- Cargar media ---
-  useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/api/cloudinary/images`
-        );
-        const data = await response.json();
-        console.log('Received images:', data);
-        setImages(data.images || []);
-      } catch (error) {
-        console.error('Gallery Error:', error);
-        setError('Could not load images');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchImages();
-  }, []);
-
-  // --- Filtrar imágenes y videos ---
   const imagesOnly = images.filter((item) =>
     ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(item.format?.toLowerCase())
   );
@@ -105,8 +60,6 @@ const GalleryPage = ({ theme }) => {
   const videosOnly = images.filter((item) =>
     ['mp4', 'mov', 'avi', 'mkv', 'webm'].includes(item.format?.toLowerCase())
   );
-
-  // --- Renderizar grid ---
   const renderMediaGrid = (list) => (
     <Grid container spacing={3}>
       {list.map((media) => (
@@ -116,7 +69,7 @@ const GalleryPage = ({ theme }) => {
               position: 'relative',
               borderRadius: theme.shape.borderRadius,
               overflow: 'hidden',
-              transition: theme.transitions.create(['transform','box-shadow']),
+              transition: theme.transitions.create(['transform', 'box-shadow']),
               '&:hover': {
                 transform: 'scale(1.05)',
                 boxShadow: theme.shadows[8],
