@@ -371,6 +371,9 @@ const Fauna = () => {
                   <Typography variant="subtitle1" sx={{ fontWeight: "bold", textAlign: "center" }}>
                     {animal.name}
                   </Typography>
+                  <Typography variant="caption" display="block" color="text.secondary" textAlign="center">
+                    {animal.category}
+                  </Typography>
                 </CardContent>
                 <DescriptionOverlay className="description">
                   {animal.description}
