@@ -53,6 +53,29 @@ const GalleryPage = ({ theme }) => {
     return () => unsubscribe();
   }, []);
 
+  const handleDelete = async (publicId) => {
+    try {
+      const response = await fetch(
+        `https://bpp-website.onrender.com/api/cloudinary/delete/${publicId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      if (!response.ok) throw new Error('Failed to delete image');
+      setImages((prevImages) =>
+        prevImages.filter((img) => img.public_id !== publicId)
+      );
+      setDeleteDialog(false);
+    } catch (error) {
+      console.error('Delete Error:', error);
+      // Show error message to user
+      alert('Error deleting image: ' + error.message);
+    }
+  };
+
   const imagesOnly = images.filter((item) =>
     ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(item.format?.toLowerCase())
   );
