@@ -5,35 +5,15 @@ const { cloudinary, CLOUDINARY_UPLOAD_PRESET } = require('../cloudinaryConfig');
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Debug middleware
-const debugLogger = (req, res, next) => {
-  console.log('🔄 Request:', {
-    timestamp: new Date().toISOString(),
-    method: req.method,
-    path: req.path,
-    headers: req.headers,
-    query: req.query,
-    body: req.method === 'POST' ? req.body : undefined
-  });
-  next();
-};
-
-router.use(debugLogger);
-
-// Status route with detailed config check
-router.get('/status', (req, res) => {
+router.get('/getimages', async (req, res) => {
   try {
-    const config = cloudinary.config();
-    console.log('📝 Cloudinary Config:', {
-      cloud_name: config.cloud_name,
-      preset: CLOUDINARY_UPLOAD_PRESET,
-      api_key: config.api_key ? 'Present' : 'Missing',
-      timestamp: new Date().toISOString()
-    });
-    res.json({ status: 'ok', config: { cloud_name: config.cloud_name, preset: CLOUDINARY_UPLOAD_PRESET } });
+    const result = await cloudinary.search.epression(
+      'resource_type:image'
+    ).execute();
+    res.status(200).json({ images: result.resources });
   } catch (error) {
-    console.error('❌ Config Error:', error);
-    res.status(500).json({ error: 'Config check failed', details: error.message });
+    console.error('Error fetching images:', error);
+    res.status(500).json({ message: 'Error al obtener imágenes' });
   }
 });
 
@@ -277,5 +257,6 @@ router.post('/upload-to-category', upload.single('image'), async (req, res) => {
       res.status(500).json({ error: error.message });
     }
 });
+
 
 module.exports = router;

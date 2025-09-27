@@ -49,12 +49,12 @@ app.use("/api/reviews", reviewsRouter); // 📌 Rutas para reseñas
 app.use('/api/cloudinary', cloudinaryRouter);// 🔥 Manejo de errores (404)
 app.use('/api/appdata', appDataRouter);
 
-app.use((req, res, next) => {
-  next(createError(404));
-});
-
 app.get('/', (req, res) => {
   res.json({ status: 'Server is running' });
+});
+
+app.use((req, res, next) => {
+  next(createError(404));
 });
 
 

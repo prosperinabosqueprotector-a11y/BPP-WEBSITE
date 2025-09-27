@@ -31,9 +31,7 @@ router.get("/all", async (req, res) => {
     const reviewsRef = db.collection("reviews");
     const snapshot = await reviewsRef.get();
 
-    if (snapshot.empty) {
-      return res.status(404).json({ error: "No hay reseñas disponibles" });
-    }
+    if (snapshot.empty) return res.status(200).json([]);
 
     const reviews = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     res.status(200).json(reviews);

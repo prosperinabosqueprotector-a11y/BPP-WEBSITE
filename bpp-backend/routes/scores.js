@@ -1,5 +1,5 @@
 const express = require("express");
-const { db } = require("../firebaseConfig");
+const { db } = require("../firebaseAuthConfig");
 const { Timestamp } = require("firebase-admin/firestore");
 
 const router = express.Router();

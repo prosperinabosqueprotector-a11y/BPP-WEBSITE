@@ -1,5 +1,5 @@
 const express = require('express');
-const { db } = require('../firebaseConfig'); // ✅ Solo importar `db`, no `serviceAccount`
+const { db } = require('../firebaseAuthConfig'); // ✅ Solo importar `db`, no `serviceAccount`
 
 const router = express.Router();
 
