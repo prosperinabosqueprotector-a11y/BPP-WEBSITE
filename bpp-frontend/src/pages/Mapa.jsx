@@ -9,7 +9,7 @@ import {
   Box,
   Container,
 } from '@mui/material';
-import { MapContainer, TileLayer, Marker, Tooltip } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Tooltip, Polyline} from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -48,27 +48,27 @@ const pointsOfInterest = [
   },
   {
     id: 2,
-    name: 'Estacion Fotovoltaica 1',
-    lat: -2.1530556,
-    lng: -79.96388888888889,
+    name: 'Vivero Forestal',
+    lat: -2.152713,
+    lng: -79.961740,
     description:
-      'Pequeño punto con paneles solares en el sendero',
+      'Área destinada al cuidado de plantas nativas.',
   },
   {
     id: 3,
-    name: 'Estacion Fotovoltaica 2',
-    lat: -2.1525,
-    lng: -79.96388888888889,
-    description:
-      'Otro punto de paneles solares.',
-  },
-  {
-    id: 4,
     name: 'Elefante Sonriente',
     lat: -2.1527778,
     lng: -79.96333333333334,
     description:
       'Un árbol singular cuya forma recuerda a la silueta de un elefante sonriente.',
+  },
+  {
+    id: 4,
+    name: 'Estacion Fotovoltaica 2',
+    lat: -2.1525,
+    lng: -79.96388888888889,
+    description:
+      'Otro punto de paneles solares.',
   },
   {
     id: 5,
@@ -79,20 +79,20 @@ const pointsOfInterest = [
   },
   {
     id: 6,
+    name: 'Estacion Fotovoltaica 1',
+    lat: -2.1530556,
+    lng: -79.96388888888889,
+    description:
+      'Pequeño punto con paneles solares en el sendero',
+  },
+  {
+    id: 7,
     name: 'Mirador',
     lat: -2.155556,
     lng: -79.962500,
     description:
       'Un punto panorámico que ofrece vistas privilegiadas del bosque y sus alrededores.',
-  },
-  {
-    id: 7,
-    name: 'Vivero Forestal',
-    lat: -2.152713,
-    lng: -79.961740,
-    description:
-      'Área destinada al cuidado de plantas nativas.',
-  },
+  }
 ];
 
 export default function Mapa({ theme }) {
@@ -179,6 +179,11 @@ export default function Mapa({ theme }) {
                 </Tooltip>
               </Marker>
             ))}
+            {/* Línea que une los puntos */}
+            <Polyline
+              positions={pointsOfInterest.map((point) => [point.lat, point.lng])}
+              pathOptions={{ color: '#b01d04', weight: 4, opacity: 0.7 }}
+            />
           </MapContainer>
         </Box>
       </Container>

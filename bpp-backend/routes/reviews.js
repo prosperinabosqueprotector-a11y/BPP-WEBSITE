@@ -1,9 +1,29 @@
 const express = require("express");
 const { verifyToken, verifyRole } = require("../middlewares/authMiddleware");
-const { db } = require('../firebaseAuthConfig'); 
-//const { db } = require("../firebaseConfig");
+const { db } = require("../firebaseAuthConfig");
 
 const router = express.Router();
+
+// Obtener reviews
+// ?status=pending | approved → si no se pasa, devuelve todas
+router.get("/", async (req, res) => {
+  try {
+    const status = req.query.status; 
+    let collectionName = "reviews"; // default
+    if (status === "pending") collectionName = "reviews_pendientes";
+    else if (status === "approved") collectionName = "reviews_aprobadas";
+
+    const snapshot = await db.collection(collectionName).get();
+
+    if (snapshot.empty) return res.status(404).json({ error: "No hay reseñas disponibles" });
+
+    const reviews = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    res.status(200).json(reviews);
+  } catch (error) {
+    console.error("❌ Error al obtener reseñas:", error);
+    res.status(500).json({ error: "Error al obtener reseñas", details: error.message });
+  }
+});
 
 // 📌 Obtener todas las reseñas aprobadas
 router.get("/all", async (req, res) => {
@@ -53,27 +73,6 @@ router.delete("/delete/:id", async (req, res) => {
   } catch (error) {
     console.error("❌ Error al eliminar reseña:", error);
     res.status(500).json({ error: "Error al eliminar reseña", details: error.message });
-  }
-});
-
-// Obtener reviews
-// ?status=pending | approved → si no se pasa, devuelve todas
-router.get("/", async (req, res) => {
-  try {
-    const status = req.query.status; 
-    let collectionName = "reviews"; // default
-    if (status === "pending") collectionName = "reviews_pendientes";
-    else if (status === "approved") collectionName = "reviews_aprobadas";
-
-    const snapshot = await db.collection(collectionName).get();
-
-    if (snapshot.empty) return res.status(404).json({ error: "No hay reseñas disponibles" });
-
-    const reviews = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    res.status(200).json(reviews);
-  } catch (error) {
-    console.error("❌ Error al obtener reseñas:", error);
-    res.status(500).json({ error: "Error al obtener reseñas", details: error.message });
   }
 });
 

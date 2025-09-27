@@ -36,6 +36,7 @@ import {
 } from "firebase/firestore";
 import { db, auth } from "../config/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
+import PostCard from "../components/PostCard"; 
 
 export default function Comunidad({ theme }) {
   const [activeTab, setActiveTab] = useState(0);
@@ -231,40 +232,14 @@ export default function Comunidad({ theme }) {
         <Grid container spacing={3}>
           {posts.map((post) => (
             <Grid item xs={12} sm={6} md={4} key={post.id}>
-              <Card className="bg-sky-100 rounded-xl overflow-hidden h-full">
-                <CardMedia
-                  component="img"
-                  image={post.image}
-                  alt={post.description || "Publicación"}
-                  sx={{ objectFit: "cover", height: 200 }}
-                />
-                <CardContent className="p-4">
-                  <Box className="flex items-center mb-2">
-                    <Avatar
-                      src={`https://api.dicebear.com/6.x/adventurer/svg?seed=${post.userName}`}
-                      className="mr-2"
-                    />
-                    <Typography variant="subtitle1">{post.userName}</Typography>
-                  </Box>
-                  <Typography variant="body2" className="mb-2">
-                    {post.description}
-                  </Typography>
-                  <Box className="flex justify-between items-center">
-                    <Box className="flex items-center space-x-1">
-                      <IconButton size="small" onClick={() => toggleLike(post.id, post.likes)}>
-                        <Favorite fontSize="small" color={post.likes?.includes(user?.uid) ? "error" : "inherit"} />
-                      </IconButton>
-                      <Typography variant="body2">{post.likes?.length || 0}</Typography>
-                    </Box>
-                    <Box className="flex items-center space-x-1">
-                      <IconButton size="small" onClick={() => handleOpenComments(post)}>
-                        <ChatBubbleOutline fontSize="small" />
-                      </IconButton>
-                      <Typography variant="body2">{post.commentCount || 0}</Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
+              <PostCard
+                post={post}
+                type="feed"
+                role={role}
+                user={user}
+                onLike={toggleLike}
+                onComment={handleOpenComments}
+              />
             </Grid>
           ))}
         </Grid>
@@ -297,56 +272,15 @@ export default function Comunidad({ theme }) {
         <Grid container spacing={3}>
           {myPosts.map((post) => (
             <Grid item xs={12} sm={6} md={4} key={post.id}>
-              <Card className="bg-sky-100 rounded-xl overflow-hidden h-full">
-                <CardMedia
-                  component="img"
-                  image={post.image}
-                  alt={post.description || "Publicación"}
-                  sx={{ objectFit: "cover", height: 200 }}
-                />
-                <CardContent className="p-4">
-                  <Typography variant="h6" className="mb-2">
-                    {post.description}
-                  </Typography>
-                  {role === "estudiante" && !post.approved && (
-                    <Typography variant="body2" color="warning.main">
-                      ⚠️ Esta publicación está pendiente de aprobación
-                    </Typography>
-                  )}
-                  <Box className="flex justify-between items-center mb-2">
-                    <Typography variant="body2" className="text-gray-600">
-                      {post.public ? "Público para la comunidad" : "Privado"}
-                    </Typography>
-                    <Switch
-                      size="small"
-                      checked={post.public || false}
-                      onChange={() => togglePublic(post.id, post.public)}
-                    />
-                  </Box>
-                  <Box className="flex justify-between items-center">
-                    <Box className="flex items-center space-x-1">
-                      <IconButton size="small">
-                        <Favorite fontSize="small"/>
-                      </IconButton>
-                      <Typography variant="body2">{post.likes?.length || 0}</Typography>
-                    </Box>
-                    <Box className="flex items-center space-x-1">
-                      <IconButton size="small" onClick={() => handleOpenComments(post)}>
-                        <ChatBubbleOutline fontSize="small" />
-                      </IconButton>
-                      <Typography variant="body2">{post.commentCount || 0}</Typography>
-                    </Box>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      onClick={() => deletePost(post.id)}
-                    >
-                      Eliminar
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
+              <PostCard
+                post={post}
+                type="my"
+                role={role}
+                user={user}
+                onComment={handleOpenComments}
+                onDelete={deletePost}
+                onTogglePublic={togglePublic}
+              />
             </Grid>
           ))}
         </Grid>
@@ -380,36 +314,13 @@ export default function Comunidad({ theme }) {
         <Grid container spacing={3}>
           {pendingPosts.map((post) => (
             <Grid item xs={12} sm={6} md={4} key={post.id}>
-              <Card className="bg-yellow-100 rounded-xl overflow-hidden h-full">
-                <CardMedia
-                  component="img"
-                  image={post.image}
-                  alt={post.description || "Publicación"}
-                  sx={{ objectFit: "cover", height: 200 }}
-                />
-                <CardContent className="p-4">
-                  <Typography variant="h6" className="mb-2">{post.description}</Typography>
-                  <Typography variant="body2" className="mb-2">Subido por: {post.userName}</Typography>
-                  <Box className="flex justify-between items-center mt-2">
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      onClick={() => approvePost(post.id)}
-                    >
-                      Aprobar
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      onClick={() => deletePost(post.id)}
-                    >
-                      Rechazar
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
+              <PostCard
+                post={post}
+                type="pending"
+                role={role}
+                onApprove={approvePost}
+                onDelete={deletePost}
+              />
             </Grid>
           ))}
         </Grid>

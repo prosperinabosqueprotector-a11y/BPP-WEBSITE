@@ -12,6 +12,7 @@ import {
   TextField,
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
+import { useSnackbar } from "notistack";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../config/firebaseConfig";
 import {
@@ -33,8 +34,12 @@ export default function Home({ theme }) {
   const [newVideo, setNewVideo] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [videoToDelete, setVideoToDelete] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
-  // 🔹 Verificar sesión y rol del usuario
+  const { enqueueSnackbar } = useSnackbar();
+
+  // Verificar sesión y rol del usuario
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -55,7 +60,7 @@ export default function Home({ theme }) {
     return () => unsubscribe();
   }, []);
 
-  // 🔹 Traer videos desde Firestore en tiempo real
+  // Traer videos desde Firestore
   useEffect(() => {
     const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -68,7 +73,6 @@ export default function Home({ theme }) {
     return () => unsubscribe();
   }, []);
 
-  // 🔹 Convertir URL normal a formato embed
   const convertToEmbedUrl = (url) => {
     try {
       const youtubeRegex =
@@ -95,32 +99,43 @@ export default function Home({ theme }) {
   const handleSaveVideo = async () => {
     const embedUrl = convertToEmbedUrl(newVideo);
     if (!embedUrl) {
-      alert("Por favor ingresa una URL válida de YouTube.");
+      enqueueSnackbar("Por favor ingresa una URL válida de YouTube.", {
+        variant: "warning",
+      });
       return;
     }
-
+    setSaving(true);
     try {
       await addDoc(collection(db, "videos"), {
         url: embedUrl,
         createdAt: serverTimestamp(),
-        addedBy: auth.currentUser?.email || "desconocido",
+        addedBy: auth.currentUser?.uid || "desconocido",
+        displayName: auth.currentUser?.displayName || "desconocido",
       });
       setOpenDialog(false);
+      enqueueSnackbar("Video agregado correctamente", { variant: "success" });
     } catch (error) {
       console.error("Error guardando video:", error);
-      alert("Ocurrió un error al guardar el video.");
+      enqueueSnackbar("Ocurrió un error al guardar el video.", {
+        variant: "error",
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
-  // 🔹 Confirmar eliminación
   const confirmDelete = async () => {
+    setDeleting(true);
     try {
       await deleteDoc(doc(db, "videos", videoToDelete));
       setConfirmOpen(false);
       setVideoToDelete(null);
+      enqueueSnackbar("Video eliminado correctamente", { variant: "success" });
     } catch (error) {
       console.error("Error eliminando video:", error);
-      alert("No se pudo eliminar el video.");
+      enqueueSnackbar("No se pudo eliminar el video.", { variant: "error" });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -177,7 +192,6 @@ export default function Home({ theme }) {
           </Typography>
         </Box>
 
-        {/* 🔹 Botón de agregar video arriba a la izquierda (solo profesor) */}
         {role === "profesor" && (
           <Box mb={4}>
             <Button
@@ -190,7 +204,7 @@ export default function Home({ theme }) {
           </Box>
         )}
 
-        {/* 🔹 Grid de videos */}
+        {/* Grid de videos */}
         <Box
           className={
             role === "profesor"
@@ -239,14 +253,14 @@ export default function Home({ theme }) {
                 allowFullScreen
               ></iframe>
               <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-                Subido por: {video.addedBy}
+                Subido por: {video.displayName}
               </Typography>
             </div>
           ))}
         </Box>
       </Container>
 
-      {/* 🔹 Dialog para agregar video */}
+      {/* Dialog para agregar video */}
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
@@ -268,16 +282,21 @@ export default function Home({ theme }) {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="error">
+          <Button onClick={handleCloseDialog} color="inherit">
             Cancelar
           </Button>
-          <Button onClick={handleSaveVideo} color="primary" variant="contained">
-            Guardar
+          <Button
+            onClick={handleSaveVideo}
+            color="primary"
+            variant="contained"
+            disabled={saving}
+          >
+            {saving ? "Guardando..." : "Guardar"}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* 🔹 Dialog elegante para confirmar eliminación */}
+      {/* Dialog elegante para confirmar eliminación */}
       <Dialog
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
@@ -287,7 +306,8 @@ export default function Home({ theme }) {
         <DialogTitle>Eliminar video</DialogTitle>
         <DialogContent dividers>
           <Typography>
-            ¿Estás seguro de que deseas eliminar este video? Esta acción no se puede deshacer.
+            ¿Estás seguro de que deseas eliminar este video? Esta acción no se
+            puede deshacer.
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -298,8 +318,9 @@ export default function Home({ theme }) {
             onClick={confirmDelete}
             color="error"
             variant="contained"
+            disabled={deleting}
           >
-            Eliminar
+            {deleting ? "Eliminando..." : "Eliminar"}
           </Button>
         </DialogActions>
       </Dialog>

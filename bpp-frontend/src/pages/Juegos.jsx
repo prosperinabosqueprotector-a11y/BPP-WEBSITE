@@ -18,7 +18,7 @@ import StarIcon from '@mui/icons-material/Star';
 
 const plantCategories = [
   {
-    title: 'Nivel 3',
+    title: 'Juegos',
     plants: [
       {
         name: 'Quiz Game',

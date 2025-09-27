@@ -22,6 +22,7 @@ import GalleryPage from './pages/GalleryPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import { colorSchemes, navItems } from './data/appData';
+import { SnackbarProvider } from "notistack";
 
 // Función para determinar la estación del año en Ecuador
 const getSeason = () => {
@@ -98,7 +99,15 @@ export default function App() {
     <Router>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+
+        <SnackbarProvider
+          maxSnack={3}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          autoHideDuration={3000}
+        >
+
         <div className="flex h-screen">
+          
           <Sidebar
             isOpen={sidebarOpen}
             toggleSidebar={toggleSidebar}
@@ -180,6 +189,7 @@ export default function App() {
             </main>
           </div>
         </div>
+        </SnackbarProvider>
       </ThemeProvider>
     </Router>
   );

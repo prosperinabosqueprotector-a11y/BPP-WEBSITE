@@ -28,7 +28,7 @@ import ImageApprovalTable from "../components/ImageApprovalTable";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const CLOUDINARY_UPLOAD_PRESET = "images";
-const CLOUDINARY_CLOUD_NAME = "dbiarx9tr";
+const CLOUDINARY_CLOUD_NAME = "dsaunprcy";
 
 const UploadPage = ({ theme }) => {
   const [file, setFile] = useState(null);
@@ -43,7 +43,7 @@ const UploadPage = ({ theme }) => {
 
   const [pendingImages, setPendingImages] = useState([]);
 
-  // Detectar usuario y rol (ANTES DEL RENDER?)
+  // Detectar usuario y rol
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
