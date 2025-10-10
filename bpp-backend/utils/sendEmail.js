@@ -4,7 +4,10 @@ var nodemailer = require('nodemailer');
 //dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  service: "gmail", // o tu servicio SMTP
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, 
+  //service: "gmail", // o tu servicio SMTP
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -21,6 +24,7 @@ const sendEmail = async ({ to, subject, text }) => {
     });
     console.log("Correo enviado a:", to);
   } catch (err) {
+    console.error("Error al enviar correo:", err.message, err.code);
     console.error("Error al enviar correo:", err);
   }
 };
