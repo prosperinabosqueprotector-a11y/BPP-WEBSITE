@@ -95,6 +95,7 @@ router.patch("/aprobar/:uid", verifyRole("profesor"), async (req, res) => {
     const userData = userDoc.data();
     const email = userData?.email;
     if (email) {
+      console.log("Intentando conectar al SMTP...");
       await sendEmail({
         to: email,
         subject: "Solicitud aprobada de creación de usuario en BPP Website",
