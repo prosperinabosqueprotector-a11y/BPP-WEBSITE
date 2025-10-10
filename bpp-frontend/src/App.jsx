@@ -39,6 +39,9 @@ export default function App() {
   const [sidebarWidth, setSidebarWidth] = useState(256);
   const isSmallScreen = useMediaQuery('(max-width:960px)');
 
+  const current_theme = useTheme();
+  const isMobile = useMediaQuery(current_theme.breakpoints.down('sm'));
+
   useEffect(() => {
     setSidebarWidth(isSmallScreen ? 0 : sidebarOpen ? 256 : 0);
   }, [sidebarOpen, isSmallScreen]);
