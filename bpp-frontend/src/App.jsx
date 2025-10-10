@@ -5,6 +5,7 @@ import {
   createTheme,
   CssBaseline,
   useMediaQuery,
+  useTheme,
   Typography,
 } from '@mui/material';
 import Sidebar from './components/Sidebar';
@@ -123,7 +124,10 @@ export default function App() {
             className="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out"
             style={{ marginLeft: isSmallScreen ? 0 : sidebarWidth }}
           >
+            
             {/* Banner de estación */}
+            {!isMobile && (
+            <>
             <div
               style={{
                 display: 'flex',
@@ -152,6 +156,8 @@ export default function App() {
                 - {getSeason()}
               </Typography>
             </div>
+            </>
+            )}
 
             <Header toggleSidebar={toggleSidebar} />
 
