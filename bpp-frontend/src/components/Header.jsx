@@ -7,6 +7,7 @@ import {
   Button,
   Tooltip,
 } from '@mui/material';
+import { useMediaQuery, useTheme } from '@mui/material';
 import { MenuRounded } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from "react";
@@ -21,6 +22,9 @@ const Header = ({ toggleSidebar }) => {
   const [floraCount, setFloraCount] = useState(0);
   const [faunaCount, setFaunaCount] = useState(0);
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const handleLogout = async () => {
     await signOut(auth);
     navigate("/");
@@ -75,22 +79,27 @@ const Header = ({ toggleSidebar }) => {
           component="div"
           sx={{ flexGrow: 1, fontWeight: 'bold' }}
         >
-          Bosque Mágico
+          {isMobile ? " " : "Bosque Mágico"}
         </Typography>
 
         <div className="flex items-center space-x-4">
-          <Tooltip title="Número de flora registrada" arrow>
-            <div className="flex items-center bg-opacity-20 bg-white rounded-full px-3 py-1 cursor-default">
-              <span className="text-yellow-400 mr-2">🍃</span>
-              <Typography variant="body1">{floraCount}</Typography>
-            </div>
-          </Tooltip>
-          <Tooltip title="Número de fauna registrada" arrow>
-            <div className="flex items-center bg-opacity-20 bg-white rounded-full px-3 py-1 cursor-default">
-              <span className="mr-2">🦉</span>
-              <Typography variant="body1">{faunaCount}</Typography>
-            </div>
-          </Tooltip>
+          {/* Solo mostrar contadores si no es móvil */}
+          {!isMobile && (
+            <>
+              <Tooltip title="Número de flora registrada" arrow>
+                <div className="flex items-center bg-opacity-20 bg-white rounded-full px-3 py-1 cursor-default">
+                  <span className="text-yellow-400 mr-2">🍃</span>
+                  <Typography variant="body1">{floraCount}</Typography>
+                </div>
+              </Tooltip>
+              <Tooltip title="Número de fauna registrada" arrow>
+                <div className="flex items-center bg-opacity-20 bg-white rounded-full px-3 py-1 cursor-default">
+                  <span className="mr-2">🦉</span>
+                  <Typography variant="body1">{faunaCount}</Typography>
+                </div>
+              </Tooltip>
+            </>
+          )}
 
           {!currentUser ? (
             <>
