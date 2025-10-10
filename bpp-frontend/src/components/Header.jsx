@@ -4,9 +4,8 @@ import {
   Typography,
   Avatar,
   IconButton,
-  Menu,
-  MenuItem,
   Button,
+  Tooltip,
 } from '@mui/material';
 import { MenuRounded } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -14,9 +13,13 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../config/firebaseConfig"; 
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Header = ({ toggleSidebar }) => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
+  const [floraCount, setFloraCount] = useState(0);
+  const [faunaCount, setFaunaCount] = useState(0);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -24,10 +27,35 @@ const Header = ({ toggleSidebar }) => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null); // visitante
+      }
     });
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const [floraRes, faunaRes] = await Promise.all([
+          fetch(`${API_URL}/api/data/floraAprobada`),
+          fetch(`${API_URL}/api/data/faunaAprobada`)
+        ]);
+
+        const floraData = await floraRes.json();
+        const faunaData = await faunaRes.json();
+
+        setFloraCount(floraData?.count || 0);
+        setFaunaCount(faunaData?.count || 0);
+      } catch (error) {
+        console.error("❌ Error al obtener conteos desde backend:", error);
+      }
+    };
+
+    fetchCounts();
   }, []);
 
   return (
@@ -51,14 +79,18 @@ const Header = ({ toggleSidebar }) => {
         </Typography>
 
         <div className="flex items-center space-x-4">
-          <div className="flex items-center bg-opacity-20 bg-white rounded-full px-3 py-1">
-            <span className="text-yellow-400 mr-2">🍃</span>
-            <Typography variant="body1">25795</Typography> 
-          </div>
-          <div className="flex items-center bg-opacity-20 bg-white rounded-full px-3 py-1">
-            <span className="mr-2">🦉</span>
-            <Typography variant="body1">15</Typography>
-          </div>
+          <Tooltip title="Número de flora registrada" arrow>
+            <div className="flex items-center bg-opacity-20 bg-white rounded-full px-3 py-1 cursor-default">
+              <span className="text-yellow-400 mr-2">🍃</span>
+              <Typography variant="body1">{floraCount}</Typography>
+            </div>
+          </Tooltip>
+          <Tooltip title="Número de fauna registrada" arrow>
+            <div className="flex items-center bg-opacity-20 bg-white rounded-full px-3 py-1 cursor-default">
+              <span className="mr-2">🦉</span>
+              <Typography variant="body1">{faunaCount}</Typography>
+            </div>
+          </Tooltip>
 
           {!currentUser ? (
             <>
@@ -74,6 +106,10 @@ const Header = ({ toggleSidebar }) => {
               <Avatar
                 alt={currentUser.displayName || "User"}
                 src={currentUser.photoURL || "/placeholder.svg"}
+                sx={{
+                  bgcolor: "gray", // fondo blanco
+                  border: "1px solid #ccc", // opcional: borde gris claro
+                }}
               />
               <Typography variant="body1" className="hidden sm:block">
                 {currentUser.displayName || "Explorador"}
@@ -88,5 +124,6 @@ const Header = ({ toggleSidebar }) => {
     </AppBar>
   );
 };
+
 
 export default Header;

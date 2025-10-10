@@ -21,6 +21,7 @@ import UploadPage from './pages/UploadPage';
 import GalleryPage from './pages/GalleryPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import UsersPage from './pages/UsersPage';
 import { colorSchemes, navItems } from './data/appData';
 import { SnackbarProvider } from "notistack";
 
@@ -184,6 +185,7 @@ export default function App() {
                   />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/signup" element={<SignupPage />} />
+                  <Route path="/users" element={<UsersPage />} />
                 </Routes>
               </div>
             </main>

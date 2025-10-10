@@ -25,7 +25,7 @@ export default function PostCard({
         {type !== "my" && (
           <Box className="flex items-center mb-2">
             <Avatar
-              src={`https://api.dicebear.com/6.x/adventurer/svg?seed=${post.userName}`}
+              src={`${user.Avatar}`}
               className="mr-2"
             />
             <Typography variant="subtitle1">{post.userName}</Typography>

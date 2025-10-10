@@ -6,8 +6,11 @@ import {
   IconButton,
   Zoom,
 } from '@mui/material';
-import { ChevronLeft, EmojiNature } from '@mui/icons-material';
+import { ChevronLeft } from '@mui/icons-material';
 import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { auth } from '../config/firebaseConfig';
+import logo from '../assets/svg/logo.svg';
 
 const Sidebar = ({
   isOpen,
@@ -18,6 +21,39 @@ const Sidebar = ({
   theme,
 }) => {
   const location = useLocation();
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          const idTokenResult = await user.getIdTokenResult();
+          const userRole = idTokenResult.claims.rol;
+          setRole(userRole);
+        } catch (error) {
+          console.error("Error obteniendo claims:", error);
+        }
+      } else {
+        setRole(null); // visitante
+      }
+    };
+
+    // Ejecutar al montar y cuando cambie el usuario
+    const unsubscribe = auth.onAuthStateChanged(() => {
+      fetchUserRole();
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // ✅ Agregamos el item "Usuarios" solo si el rol es profesor
+  const filteredNavItems = [
+    ...navItems,
+    ...(role === 'profesor'
+      ? [{ text: 'Usuarios', emoji: '👤', route: '/users' }]
+      : []),
+  ];
 
   return (
     <Drawer
@@ -36,13 +72,14 @@ const Sidebar = ({
       }}
     >
       <div className="p-4 flex justify-between items-center">
-        <EmojiNature className="text-4xl" />
+        <img src={logo} alt="Logo" className="h-8 w-8" />
         <IconButton onClick={toggleSidebar} className="text-current">
           <ChevronLeft />
         </IconButton>
       </div>
+
       <List>
-        {navItems.map((item, index) => {
+        {filteredNavItems.map((item, index) => {
           const isActive = location.pathname === item.route;
           return (
             <Zoom

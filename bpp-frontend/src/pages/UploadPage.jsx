@@ -131,7 +131,7 @@ const UploadPage = ({ theme }) => {
           archivo: uploadData.secure_url,
           public_id: uploadData.public_id,
           explorador: user.displayName || "Anónimo",
-          avatar: user.photoURL || "https://i.pravatar.cc/100",
+          avatar: user.photoURL || `https://api.dicebear.com/6.x/adventurer/svg?seed=${user.displayName}`,
           correo: user.email,
           fecha,
           hora,

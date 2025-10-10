@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ConnectedUsers from "../components/ConnectedUsers";
 import {
   Avatar,
   Button,
@@ -61,7 +62,7 @@ export default function Comunidad({ theme }) {
 
   const handleTabChange = (event, newValue) => setActiveTab(newValue);
 
-  // 🔹 Verificar sesión y rol del usuario
+  // Verificar sesión y rol del usuario
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
@@ -221,6 +222,9 @@ export default function Comunidad({ theme }) {
   // ─── Componentes de feed y mis publicaciones ───
   const CommunityFeed = () => (
     <Box className="space-y-6">
+      <Box mb={4}>
+        <ConnectedUsers />
+      </Box>
       <Typography variant="h6" className="text-gray-800 mb-4">
         Descubrimientos Recientes
       </Typography>
