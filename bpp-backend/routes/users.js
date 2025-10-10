@@ -91,6 +91,16 @@ router.patch("/aprobar/:uid", verifyRole("profesor"), async (req, res) => {
   try {
     const { uid } = req.params;
     await db.collection("Usuarios").doc(uid).update({ aprobado: true });
+    const userDoc = await db.collection("Usuarios").doc(uid).get();
+    const userData = userDoc.data();
+    const email = userData?.email;
+    if (email) {
+      await sendEmail({
+        to: email,
+        subject: "Solicitud aprobada de creación de usuario en BPP Website",
+        text: `Hola ${userData?.nombre || ""}, le informamos que su solicitud para ser registrado con permisos de profesor ha sido aprobada.`,
+      });
+    }
     res.json({ success: true, message: "Usuario aprobado correctamente" });
   } catch (err) {
     console.error("Error al aprobar usuario:", err);
