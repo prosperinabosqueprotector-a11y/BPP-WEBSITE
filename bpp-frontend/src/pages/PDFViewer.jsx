@@ -1,18 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Document, Page } from 'react-pdf';
 
 const PDFViewer = ({ pdfUrl }) => {
+  const [numPages, setNumPages] = useState(null);
+
+  const onDocumentLoadSuccess = ({ numPages }) => {
+    setNumPages(numPages);
+  };
+
   return (
-    <div style={{ height: '100%', width: '100%' }}>
-      <iframe
-        src={pdfUrl}
-        title="PDF Viewer"
-        style={{ 
-          width: '100%', 
-          height: '100%', 
-          border: 'none', 
-          display: 'block'
-        }}
-      ></iframe>
+    <div style={{ overflowY: 'auto', height: '100%' }}>
+      <Document
+        file={pdfUrl}
+        onLoadSuccess={onDocumentLoadSuccess}
+        loading="Cargando PDF..."
+      >
+        {Array.from(new Array(numPages), (el, index) => (
+          <Page
+            key={`page_${index + 1}`}
+            pageNumber={index + 1}
+            width={window.innerWidth} // Ajusta al ancho del móvil
+          />
+        ))}
+      </Document>
     </div>
   );
 };
