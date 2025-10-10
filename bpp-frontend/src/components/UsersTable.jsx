@@ -31,7 +31,7 @@ const UsersTable = ({
               return (
                 <TableRow key={u.id} style={{ backgroundColor: bgColor }}>
                   <TableCell className="p-3 text-center">
-                    <div className="flex items-center gap-2 justify-center">
+                    <div className="flex items-center gap-2">
                       <Avatar
                         alt={u.username || "User"}
                         src={
