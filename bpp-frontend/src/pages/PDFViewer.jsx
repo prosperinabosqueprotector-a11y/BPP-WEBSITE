@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 
-// Configurar worker
+// Configurar worker de pdf.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const PDFViewer = ({ pdfUrl }) => {
@@ -17,30 +17,30 @@ const PDFViewer = ({ pdfUrl }) => {
 
   const onDocumentLoadSuccess = ({ numPages }) => setNumPages(numPages);
 
-  // Ancho máximo para desktop y adaptable en móvil
+  // Responsividad
   const pageWidth = windowWidth < 768 ? windowWidth - 20 : 800;
 
   return (
     <div
       style={{
-        position: 'fixed', // fija el visor en toda la pantalla
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        width: '100%',
+        minHeight: '100vh', // asegura que el área se expanda
         backgroundColor: '#000',
-        overflowY: 'auto', // solo un scroll vertical
-        overflowX: 'hidden',
         display: 'flex',
         flexDirection: 'column', // una hoja debajo de otra
         alignItems: 'center', // centra horizontalmente
         justifyContent: 'flex-start',
         padding: '20px 0',
         boxSizing: 'border-box',
-        zIndex: 0, // evita interferencias con navbar o overlays
+        overflow: 'visible', // evita scroll propio
       }}
     >
-      <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess} loading="">
+      <Document
+        file={pdfUrl}
+        onLoadSuccess={onDocumentLoadSuccess}
+        loading=""
+        options={{ cMapUrl: 'cmaps/', cMapPacked: true }}
+      >
         {Array.from(new Array(numPages), (_, index) => (
           <div
             key={`page_${index + 1}`}
