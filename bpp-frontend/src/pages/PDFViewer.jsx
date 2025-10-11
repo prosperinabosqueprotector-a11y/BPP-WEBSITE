@@ -27,7 +27,7 @@ const PDFViewer = ({ pdfUrl }) => {
         height: '100vh',
         width: '100%',
         overflowY: 'auto',
-        overflowX: 'hidden',
+        //overflowX: 'hidden',
         backgroundColor: '#000000', // fondo negro
         display: 'flex',
         justifyContent: 'center',
@@ -47,7 +47,7 @@ const PDFViewer = ({ pdfUrl }) => {
             style={{
               margin: 0, // eliminar salto entre páginas
               paddingBottom: 5, // pequeño espacio opcional entre páginas
-              boxShadow: '0px 2px 10px rgba(255,255,255,0.1)', // sutil sombra si quieres
+              boxShadow: 'none',
               backgroundColor: '#000000', // mismo fondo negro por página
               display: 'inline-block',
             }}
