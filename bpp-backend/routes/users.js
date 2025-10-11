@@ -1,4 +1,4 @@
-const sendEmail = require("../utils/sendEmail.js");
+//const sendEmail = require("../utils/sendEmail.js");
 var express = require('express');
 var router = express.Router();
 const { db, admin } = require('../firebaseAuthConfig'); 
@@ -91,17 +91,17 @@ router.patch("/aprobar/:uid", verifyRole("profesor"), async (req, res) => {
   try {
     const { uid } = req.params;
     await db.collection("Usuarios").doc(uid).update({ aprobado: true });
-    const userDoc = await db.collection("Usuarios").doc(uid).get();
-    const userData = userDoc.data();
-    const email = userData?.email;
-    if (email) {
-      console.log("Intentando conectar al SMTP...");
-      await sendEmail({
-        to: email,
-        subject: "Solicitud aprobada de creación de usuario en BPP Website",
-        text: `Hola ${userData?.nombre || ""}, le informamos que su solicitud para ser registrado con permisos de profesor ha sido aprobada.`,
-      });
-    }
+    //const userDoc = await db.collection("Usuarios").doc(uid).get();
+    //const userData = userDoc.data();
+    //const email = userData?.email;
+    //if (email) {
+    //  console.log("Intentando conectar al SMTP...");
+    //  await sendEmail({
+    //    to: email,
+    //    subject: "Solicitud aprobada de creación de usuario en BPP Website",
+    //    text: `Hola ${userData?.nombre || ""}, le informamos que su solicitud para ser registrado con permisos de profesor ha sido aprobada.`,
+    //  });
+    //}
     res.json({ success: true, message: "Usuario aprobado correctamente" });
   } catch (err) {
     console.error("Error al aprobar usuario:", err);
@@ -126,13 +126,13 @@ router.delete("/rechazar/:uid", verifyRole("profesor"), async (req, res) => {
     await admin.auth().deleteUser(uid);
 
     // 4. (Opcional) Enviar correo de notificación
-    if (email) {
-      await sendEmail({
-        to: email,
-        subject: "Solicitud rechazada de creación de usuario en BPP Website",
-        text: `Hola ${userData?.nombre || ""}, lamentamos informarte que tu solicitud para ser registrado con permisos de profesor ha sido rechazada.`,
-      });
-    }
+    //if (email) {
+    //  await sendEmail({
+    //    to: email,
+    //    subject: "Solicitud rechazada de creación de usuario en BPP Website",
+    //    text: `Hola ${userData?.nombre || ""}, lamentamos informarte que tu solicitud para ser registrado con permisos de profesor ha sido rechazada.`,
+    //  });
+    //}
 
     res.json({ success: true, message: "Usuario rechazado y eliminado" });
   } catch (err) {
