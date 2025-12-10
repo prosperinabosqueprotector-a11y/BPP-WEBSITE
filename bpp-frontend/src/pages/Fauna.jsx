@@ -21,20 +21,23 @@ import {
   styled,
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
-import CheckIcon from '@mui/icons-material/Check';
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { auth, db } from "../config/firebaseConfig"; // Asegúrate del path correcto
+import { auth, db } from "../config/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
-import { addDoc, collection, serverTimestamp, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, onSnapshot, query, orderBy, doc, deleteDoc } from "firebase/firestore";
 
+// Configuración de Cloudinary
 const CLOUDINARY_UPLOAD_PRESET = "images";
 const CLOUDINARY_CLOUD_NAME = "dsaunprcy";
 
-// Colección principal para la fauna aprobada
+// Colecciones de Firestore
 const FAUNA_COLLECTION = "faunaAprobada";
-// Colección para las imágenes que esperan revisión
 const PENDING_COLLECTION = "imagenesPendientes";
 
+// Variable de entorno para la URL de tu Backend (necesario para borrar de Cloudinary)
+const API_URL = import.meta.env.VITE_API_URL;
+
+// --- Estilos ---
 const StyledCard = styled(Card)({
   width: 200,
   position: "relative",
@@ -60,6 +63,7 @@ const DescriptionOverlay = styled(Box)({
   right: 0,
 });
 
+// --- Componente Principal ---
 const Fauna = () => {
   const [animals, setAnimals] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -92,7 +96,6 @@ const Fauna = () => {
           const userRole = idTokenResult.claims.rol;
           setRole(userRole);
         } catch (err) {
-          console.error("Error obteniendo claims:", err);
           setRole('estudiante');
         }
       } else {
@@ -147,7 +150,7 @@ const Fauna = () => {
       formData.append("file", file);
       formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-      // Define la carpeta 'fauna'
+      // Define la carpeta
       const folderPath = role === "profesor" ? "upload/fauna" : "pendientes/fauna";
       formData.append("folder", folderPath);
 
@@ -199,12 +202,12 @@ const Fauna = () => {
   const handleApprove = async (item) => {
     setLoading(true);
     try {
-      // 1. Añadir a la colección principal
+      // 1. Añadir a la colección principal (usando 'image' y 'public_id')
       const approvedData = {
         name: item.name,
         category: item.category,
         description: item.description,
-        image: item.archivo,
+        image: item.image,
         public_id: item.public_id,
         createdAt: serverTimestamp(),
       };
@@ -222,26 +225,40 @@ const Fauna = () => {
     }
   };
 
-  // Función para eliminar un item (de la lista principal o rechazar pendiente)
+  // FUNCIÓN DE ELIMINACIÓN CORREGIDA
   const handleDelete = async () => {
     if (!selectedItem) return;
 
-    const isPending = selectedItem.id; // Si tiene ID, es de la cola de pendientes
-    const collectionRef = isPending ? PENDING_COLLECTION : FAUNA_COLLECTION;
+    // 1. Identificar la colección a eliminar
+    // Si selectedItem tiene una URL o public_id, es un item subido
+    const collectionRef = pendingImages.some(item => item.id === selectedItem.id)
+      ? PENDING_COLLECTION
+      : FAUNA_COLLECTION;
 
     setLoading(true);
     try {
-      // 1. Borrar de Firestore (Aprobado o Pendiente)
-      await deleteDoc(doc(db, collectionRef, selectedItem.id));
+      const publicId = selectedItem.public_id;
 
-      // 2. Opcional: Borrar de Cloudinary (requiere una función de backend o API key)
-      // Ya que no tienes API, asumimos que se borrará manualmente si es necesario.
+      // 2. Borrar el archivo de Cloudinary (si existe un public_id)
+      if (publicId) {
+        const deleteResponse = await fetch(`${API_URL}/api/cloudinary/delete/${publicId}`, {
+          method: 'DELETE'
+        });
+
+        if (!deleteResponse.ok) {
+          // No lanzamos error fatal, solo advertimos si Cloudinary falla
+          console.warn("Fallo al borrar de Cloudinary. El registro de Firestore será borrado.");
+        }
+      }
+
+      // 3. Borrar de Firestore (Aprobado o Pendiente)
+      await deleteDoc(doc(db, collectionRef, selectedItem.id));
 
       setDeleteDialog(false);
       setShowSuccess(true);
     } catch (error) {
       console.error('Error al eliminar:', error);
-      setError('Error al eliminar el item. Revisa los permisos de Firestore.');
+      setError('Error al eliminar el item. Revisa la conexión con tu backend y los permisos de Firestore.');
     } finally {
       setLoading(false);
       setSelectedItem(null);
@@ -410,7 +427,7 @@ const Fauna = () => {
           </Typography>
           {pendingImages.map((item) => (
             <Card key={item.id} sx={{ mb: 2, p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-              <CardMedia component="img" height="100" sx={{ width: 100 }} image={item.archivo} alt={item.name} />
+              <CardMedia component="img" height="100" sx={{ width: 100 }} image={item.image} alt={item.name} />
               <Box sx={{ flexGrow: 1 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{item.name} ({item.category})</Typography>
                 <Typography variant="body2">{item.description}</Typography>
@@ -429,15 +446,16 @@ const Fauna = () => {
       <Dialog open={deleteDialog} onClose={() => setDeleteDialog(false)}>
         <DialogTitle>Confirmar Operación</DialogTitle>
         <DialogContent>
-          ¿Estás seguro que deseas eliminar este item? Se borrará de la lista principal (si está aprobado) o de la cola de revisión (si está pendiente).
+          ¿Estás seguro que deseas eliminar este item? Se borrará de la lista y, si es posible, de Cloudinary.
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteDialog(false)}>Cancelar</Button>
           <Button
             onClick={handleDelete}
             color="error"
+            disabled={loading}
           >
-            {selectedItem?.id ? 'Eliminar de Firestore' : 'Eliminar'}
+            Eliminar
           </Button>
         </DialogActions>
       </Dialog>
