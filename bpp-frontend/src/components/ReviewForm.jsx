@@ -10,7 +10,7 @@ import {
 import SendIcon from "@mui/icons-material/Send";
 import { auth } from "../config/firebaseConfig";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = "https://bpp-website-1.onrender.com";
 
 const ReviewForm = ({ onReviewSubmitted, role }) => {
   const [rating, setRating] = useState(5);

@@ -17,7 +17,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { auth } from "../config/firebaseConfig";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = "https://bpp-website-1.onrender.com";
 
 const ReviewList = ({ role }) => {
   const [reviews, setReviews] = useState([]);

@@ -35,7 +35,7 @@ const FLORA_COLLECTION = "floraAprobada";
 const PENDING_COLLECTION = "floraPendiente";
 
 // ⚠️ NECESARIO para borrar archivos de Cloudinary de forma segura.
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = "https://bpp-website-1.onrender.com";
 
 // --- ESTILOS ---
 const StyledCard = styled(Card)({

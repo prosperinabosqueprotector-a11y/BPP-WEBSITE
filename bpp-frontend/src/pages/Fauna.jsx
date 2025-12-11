@@ -35,7 +35,7 @@ const FAUNA_COLLECTION = "faunaAprobada";
 const PENDING_COLLECTION = "imagenesPendientes";
 
 // Variable de entorno para la URL de tu Backend (necesario para borrar de Cloudinary)
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = "https://bpp-website-1.onrender.com";
 
 // --- Estilos ---
 const StyledCard = styled(Card)({

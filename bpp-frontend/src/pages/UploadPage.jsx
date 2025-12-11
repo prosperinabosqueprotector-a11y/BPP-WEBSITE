@@ -26,7 +26,7 @@ import {
 } from "firebase/firestore";
 import ImageApprovalTable from "../components/ImageApprovalTable";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = "https://bpp-website-1.onrender.com";
 const CLOUDINARY_UPLOAD_PRESET = "images";
 const CLOUDINARY_CLOUD_NAME = "dsaunprcy";
 

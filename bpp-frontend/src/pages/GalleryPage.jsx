@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import { auth } from "../config/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = "https://bpp-website-1.onrender.com";
 
 const GalleryPage = ({ theme }) => {
   const [images, setImages] = useState([]);

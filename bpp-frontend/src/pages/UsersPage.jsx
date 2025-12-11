@@ -12,7 +12,7 @@ const UsersPage = () => {
       const user = auth.currentUser;
       if (!user) return;
       const token = await user.getIdToken();
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/users/todos`, {
+      const res = await fetch(`https://bpp-website-1.onrender.com/users/todos`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -30,7 +30,7 @@ const UsersPage = () => {
 
   const handleApprove = async (uid) => {
     const token = await auth.currentUser.getIdToken();
-    await fetch(`${import.meta.env.VITE_API_URL}/users/aprobar/${uid}`, {
+    await fetch(`https://bpp-website-1.onrender.com/users/aprobar/${uid}`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -40,7 +40,7 @@ const UsersPage = () => {
   const handleReject = async (uid) => {
     if (!confirm("¿Seguro que deseas rechazar y eliminar este usuario?")) return;
     const token = await auth.currentUser.getIdToken();
-    await fetch(`${import.meta.env.VITE_API_URL}/users/rechazar/${uid}`, {
+    await fetch(`https://bpp-website-1.onrender.com/users/rechazar/${uid}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
