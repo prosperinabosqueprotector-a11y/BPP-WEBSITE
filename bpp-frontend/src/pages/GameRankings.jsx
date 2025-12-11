@@ -49,7 +49,7 @@ export default function GameRankings() {
       
       const promises = GAMES_CONFIG.map(async (game) => {
         try {
-          const res = await fetch(`https://bpp-website.onrender.com/api/scores/top?gameId=${game.id}`);
+          const res = await fetch(`https://bpp-website-1.onrender.com/api/scores/top?gameId=${game.id}`);
           const data = await res.json();
           newData[game.id] = Array.isArray(data) ? data : []; 
         } catch (error) {

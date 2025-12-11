@@ -155,7 +155,7 @@ export default function Juegos() {
     if (gameId === 'puzzle') {
       try {
         const lastImg = puzzleImage;
-        const apiUrl = 'https://bpp-website.onrender.com';
+        const apiUrl = 'https://bpp-website-1.onrender.com';
         const response = await fetch(
           `${apiUrl}/api/puzzle-image?last=${encodeURIComponent(lastImg)}`
         );

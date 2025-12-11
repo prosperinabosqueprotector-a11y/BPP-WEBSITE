@@ -19,7 +19,7 @@ export default function ScoreModal({ open, score, gameId, onClose, onSaveSuccess
     
     setSaving(true);
     try {
-      const response = await fetch('https://bpp-website.onrender.com/api/scores/add', {
+      const response = await fetch('https://bpp-website-1.onrender.com/api/scores/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

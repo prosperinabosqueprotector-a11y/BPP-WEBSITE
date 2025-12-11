@@ -26,7 +26,7 @@ const QuizGame = () => {
 
   const fetchQuestions = async () => {
     try {
-      const response = await fetch('https://bpp-website.onrender.com/api/quiz/all');
+      const response = await fetch('https://bpp-website-1.onrender.com/api/quiz/all');
       const data = await response.json();
       if (Array.isArray(data)) setQuestions(data);
     } catch (error) {

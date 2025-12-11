@@ -5,7 +5,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import ScoreModal from './ScoreModal';
 
 // URL de tu Backend (para pedirle el NOMBRE de la imagen, no la imagen en sí)
-const API_URL = 'https://bpp-website.onrender.com'; 
+const API_URL = 'https://bpp-website-1.onrender.com'; 
 
 const GAME_DURATION = 120; 
 

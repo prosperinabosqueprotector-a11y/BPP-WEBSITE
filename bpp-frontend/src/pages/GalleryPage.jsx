@@ -57,7 +57,7 @@ const GalleryPage = ({ theme }) => {
   const handleDelete = async (publicId) => {
     try {
       const response = await fetch(
-        `https://bpp-website.onrender.com/api/cloudinary/delete/${publicId}`,
+        `https://bpp-website-1.onrender.com/api/cloudinary/delete/${publicId}`,
         {
           method: 'DELETE',
           headers: {

@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../config/firebaseConfig"; 
 
-const API_URL = 'https://bpp-website.onrender.com';
+const API_URL = 'https://bpp-website-1.onrender.com';
 
 const Header = ({ toggleSidebar }) => {
   const navigate = useNavigate();
