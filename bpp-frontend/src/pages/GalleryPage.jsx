@@ -34,6 +34,7 @@ const GalleryPage = ({ theme }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       try {
+        console.log(API_URL);
         const response = await fetch(`${API_URL}/api/cloudinary/images`);
         const data = await response.json();
         setImages(data.images || []);

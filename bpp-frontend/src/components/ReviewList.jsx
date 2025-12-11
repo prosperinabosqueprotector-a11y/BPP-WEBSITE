@@ -12,7 +12,9 @@ import {
   TableHead,
   TableRow,
   Button,
+  IconButton,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { auth } from "../config/firebaseConfig";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -20,7 +22,6 @@ const API_URL = import.meta.env.VITE_API_URL;
 const ReviewList = ({ role }) => {
   const [reviews, setReviews] = useState([]);
   const [pendingReviews, setPendingReviews] = useState([]);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchReviews = async () => {
@@ -62,7 +63,6 @@ const ReviewList = ({ role }) => {
       });
 
       if (!res.ok) throw new Error("Error al aprobar la reseña");
-      // Refrescar listas
       fetchReviews();
     } catch (err) {
       console.error(err);
@@ -82,19 +82,41 @@ const ReviewList = ({ role }) => {
       });
 
       if (!res.ok) throw new Error("Error al rechazar la reseña");
-      // Refrescar listas
       fetchReviews();
     } catch (err) {
       console.error(err);
       alert(err.message);
     }
-  }
+  };
+
+  // NUEVA FUNCIÓN: eliminar reseñas aprobadas
+  const handleDeleteApproved = async (id) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error("No autenticado");
+      const token = await user.getIdToken();
+
+      const confirmDelete = window.confirm("¿Seguro que deseas eliminar esta reseña aprobada?");
+      if (!confirmDelete) return;
+
+      const res = await fetch(`${API_URL}/api/reviews/delete/approved/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Error al eliminar la reseña aprobada");
+      fetchReviews();
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
 
   if (loading) return <CircularProgress />;
 
   return (
     <Box sx={{ maxWidth: 800, margin: "auto", mt: 4 }}>
-
+      {/* Sección: reseñas pendientes */}
       {role === "profesor" && pendingReviews.length > 0 && (
         <>
           <Box sx={{ mt: 6 }}>
@@ -154,6 +176,7 @@ const ReviewList = ({ role }) => {
         </>
       )}
 
+      {/* Sección: reseñas aprobadas */}
       <Typography
         variant="h5"
         sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}
@@ -162,17 +185,39 @@ const ReviewList = ({ role }) => {
       </Typography>
 
       {reviews.map((review) => (
-        <Paper key={review.id} sx={{ padding: 2, mb: 2, textAlign: "left" }}>
-          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-            {review.user.displayName || "Anónimo"}
-          </Typography>
-          <Rating value={review.rating} readOnly />
-          <Typography variant="body1">{review.comment}</Typography>
+        <Paper
+          key={review.id}
+          sx={{
+            padding: 2,
+            mb: 2,
+            textAlign: "left",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+              {review.user.displayName || "Anónimo"}
+            </Typography>
+            <Rating value={review.rating} readOnly />
+            <Typography variant="body1">{review.comment}</Typography>
+          </Box>
+
+          {/* Solo visible para profesores */}
+          {role === "profesor" && (
+            <IconButton
+              color="error"
+              onClick={() => handleDeleteApproved(review.id)}
+              sx={{ ml: 2 }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          )}
         </Paper>
       ))}
 
       <Box sx={{ height: 30 }} />
-
     </Box>
   );
 };

@@ -29,7 +29,7 @@ import { addDoc, collection, serverTimestamp, onSnapshot, query, orderBy, doc, d
 
 // --- CONSTANTES DE CONFIGURACIÓN ---
 const CLOUDINARY_UPLOAD_PRESET = "images";
-const CLOUDINARY_CLOUD_NAME = "dbiarx9tr"; // Tu Cloud Name
+const CLOUDINARY_CLOUD_NAME = "dsaunprcy"; // Tu Cloud Name
 // Colecciones de Firestore
 const FLORA_COLLECTION = "floraAprobada";
 const PENDING_COLLECTION = "floraPendiente";

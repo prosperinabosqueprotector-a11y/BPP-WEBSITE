@@ -3,133 +3,140 @@ var router = express.Router();
 const { db, admin } = require('../firebaseAuthConfig'); 
 const { verifyToken, verifyRole } = require('../middlewares/authMiddleware');
 
-router.post('/solicitar', async (req, res) => {
+
+router.get('/todos', verifyRole('profesor'), async (req, res) => {
   try {
-    const { email, nombre, username, rol, password } = req.body;
-    if (!email || !nombre || !username || !rol || !password) {
-      return res.status(400).json({ error: 'Faltan campos obligatorios' });
+    const snapshot = await db.collection('Usuarios').get();
+    const usuarios = [];
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      // Traer info de Firebase Auth usando uid (doc.id)
+      const userAuth = await admin.auth().getUser(doc.id);
+      usuarios.push({
+        id: doc.id,
+        ...data,
+        emailVerified: userAuth.emailVerified,
+      });
     }
-
-    const solicitudRef = db.collection('RegistroPendiente').doc(email);
-    const solicitudSnap = await solicitudRef.get();
-    if (solicitudSnap.exists) {
-      return res.status(400).json({ error: 'Ya existe una solicitud para este email' });
-    }
-
-    await solicitudRef.set({ email, nombre, username, rol, password });
-    res.json({ mensaje: 'Solicitud enviada correctamente' });
+    res.json({ usuarios });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error al obtener usuarios:', err);
+    res.status(500).json({ error: 'Error al obtener usuarios' });
   }
-})
+});
+
 
 router.post("/signup", async (req, res) => {
   try {
-    const { nombre, email, password, rol, username } = req.body;
-    console.log(rol);
-
-    if (!nombre || !email || !password || !rol) {
-      return res.status(400).json({ error: "Faltan datos obligatorios" });
-    }
-
-    // Crear usuario en Firebase Auth
-    const userRecord = await admin.auth().createUser({
-      email,
-      password,
-      displayName: nombre,
-    });
-
+    const { nombre, email, rol, username, user} = req.body;
     // Asignar custom claim (rol)
-    await admin.auth().setCustomUserClaims(userRecord.uid, { rol });
-
-    // Guardar datos públicos en Firestore
-    await db.collection("Usuarios").doc(userRecord.uid).set({
+    await admin.auth().setCustomUserClaims(user.uid, { rol });
+    await db.collection("Usuarios").doc(user.uid).set({
       nombre,
-      username: username || "",
+      username: username || nombre,
       rol,
       email,
+      aprobado: rol === "estudiante" ? true : false,
       createdAt: new Date(),
     });
-
     res.json({
       mensaje: `Usuario creado con rol ${rol}`,
-      uid: userRecord.uid,
+      uid: user.uid,
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err });
   }
 });
 
-router.post('/aprobar', verifyRole('profesor'), async (req, res) => {
+
+router.post("/login", async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Falta el email' });
-
-    const solicitudRef = db.collection('RegistroPendiente').doc(email);
-    const solicitudSnap = await solicitudRef.get();
-    if (!solicitudSnap.exists) return res.status(404).json({ error: 'Solicitud no encontrada' });
-
-    const data = solicitudSnap.data();
-
-    // Crea el usuario en Firebase Auth
-    const userRecord = await admin.auth().createUser({
-      email: data.email,
-      password: data.password,
-      displayName: data.nombre,
-    });
-
-    await admin.auth().setCustomUserClaims(userRecord.uid, { rol: data.rol })
-
-    // Opcional: guardar datos públicos en Firestore
-    await db.collection('Usuarios').doc(userRecord.uid).set({
-      nombre: data.nombre,
-      username: data.username,
-      rol: data.rol,
-      email: data.email,
-    });
-
-    // Elimina la solicitud
-    await solicitudRef.delete();
-
-    res.json({ mensaje: `Usuario aprobado y creado con rol ${data.rol}`, uid: userRecord.uid });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-router.post('/rechazar', verifyRole('profesor'), async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Falta el email' });
-
-    const solicitudRef = db.collection('RegistroPendiente').doc(email);
-    const solicitudSnap = await solicitudRef.get();
-    if (!solicitudSnap.exists) return res.status(404).json({ error: 'Solicitud no encontrada' });
-
-    await solicitudRef.delete();
-    res.json({ mensaje: 'Solicitud rechazada y eliminada' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-router.get('/pendientes', verifyRole('profesor'), async (req, res) => {
-  try {
-    const snapshot = await db.collection('RegistroPendiente').get();
-    if (snapshot.empty) {
-      return res.json({ pendientes: [] });
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ message: "Token requerido" });
+    // Verificar token recibido
+    const decoded = await admin.auth().verifyIdToken(token);
+    const { uid, email, email_verified } = decoded;
+    // Verificar que el correo esté verificado
+    if (!email_verified) {
+      return res.status(403).json({ message: "email-not-verified" });
     }
-
-    const pendientes = [];
-    snapshot.forEach(doc => {
-      const { password, ...rest } = doc.data(); // excluye password
-      pendientes.push(rest);
+    // Obtener documento del usuario en Firestore
+    const userRef = db.collection("Usuarios").doc(uid);
+    const userSnap = await userRef.get();
+    if (!userSnap.exists) {
+      return res.status(404).json({ message: "user-not-exists" });
+    }
+    const userData = userSnap.data();
+    // Si es profesor, verificar que esté aprobado
+    if (userData.rol === "profesor" && !userData.aprobado) {
+      return res.status(403).json({ message: "user-not-approved" });
+    }
+    // Todo correcto
+    return res.status(200).json({
+      message: "Login exitoso",
+      nombre: userData.nombre,
+      rol: userData.rol,
+      aprobado: userData.aprobado,
     });
-
-    res.json({ pendientes });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error en /users/login:", err);
+    return res.status(500).json({ message: "Error interno en login." });
+  }
+});
+
+
+router.patch("/aprobar/:uid", verifyRole("profesor"), async (req, res) => {
+  try {
+    const { uid } = req.params;
+    await db.collection("Usuarios").doc(uid).update({ aprobado: true });
+    //const userDoc = await db.collection("Usuarios").doc(uid).get();
+    //const userData = userDoc.data();
+    //const email = userData?.email;
+    //if (email) {
+    //  console.log("Intentando conectar al SMTP...");
+    //  await sendEmail({
+    //    to: email,
+    //    subject: "Solicitud aprobada de creación de usuario en BPP Website",
+    //    text: `Hola ${userData?.nombre || ""}, le informamos que su solicitud para ser registrado con permisos de profesor ha sido aprobada.`,
+    //  });
+    //}
+    res.json({ success: true, message: "Usuario aprobado correctamente" });
+  } catch (err) {
+    console.error("Error al aprobar usuario:", err);
+    res.status(500).json({ error: "Error al aprobar usuario" });
+  }
+});
+
+
+router.delete("/rechazar/:uid", verifyRole("profesor"), async (req, res) => {
+  try {
+    const { uid } = req.params;
+
+    // 1. Obtener el email del usuario
+    const userDoc = await db.collection("Usuarios").doc(uid).get();
+    const userData = userDoc.data();
+    const email = userData?.email;
+
+    // 2. Eliminar del Firestore
+    await db.collection("Usuarios").doc(uid).delete();
+
+    // 3. Eliminar del Auth
+    await admin.auth().deleteUser(uid);
+
+    // 4. (Opcional) Enviar correo de notificación
+    //if (email) {
+    //  await sendEmail({
+    //    to: email,
+    //    subject: "Solicitud rechazada de creación de usuario en BPP Website",
+    //    text: `Hola ${userData?.nombre || ""}, lamentamos informarte que tu solicitud para ser registrado con permisos de profesor ha sido rechazada.`,
+    //  });
+    //}
+
+    res.json({ success: true, message: "Usuario rechazado y eliminado" });
+  } catch (err) {
+    console.error("Error al rechazar usuario:", err);
+    res.status(500).json({ error: "Error al rechazar usuario" });
   }
 });
 

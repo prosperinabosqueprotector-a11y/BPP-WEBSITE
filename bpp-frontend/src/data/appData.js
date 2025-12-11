@@ -35,9 +35,7 @@ export const navItems = [
   { text: 'Juegos', emoji: '🎮', route: '/juegos' },
   { 
     text: 'Rankings', 
-    emoji: '🏆', // Emoji de trofeo
-    // O si usas componentes de iconos en lugar de emojis de texto:
-    // icon: <EmojiEventsIcon />, 
+    emoji: '🏆',
     route: '/rankings' 
   },
   { text: 'Comunidad', emoji: '📸', route: '/comunidad' },

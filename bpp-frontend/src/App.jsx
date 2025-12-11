@@ -24,6 +24,9 @@ import SignupPage from './pages/SignupPage';
 import { colorSchemes, navItems } from './data/appData';
 import { SnackbarProvider } from "notistack";
 import GameRankings from './pages/GameRankings'; 
+import UsersPage from './pages/UsersPage';
+import { colorSchemes, navItems } from './data/appData';
+import { SnackbarProvider } from "notistack";
 
 // Función para determinar la estación del año en Ecuador
 const getSeason = () => {

@@ -1,10 +1,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react()],           // Configura Vite para React con SWC
   server: {
-    historyApiFallback: true,
+    historyApiFallback: true,   // Permite rutas SPA al recargar
+  },
+  optimizeDeps: {
+    exclude: ['pdfjs-dist'],    // Evita que Vite procese pdfjs durante el build
   },
 });
