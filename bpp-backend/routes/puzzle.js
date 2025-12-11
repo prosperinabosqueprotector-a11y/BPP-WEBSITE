@@ -10,10 +10,20 @@ const images = [
   '/images/puzzle5.jpg',
 ];
 
-// Endpoint que envía una imagen aleatoria
 router.get('/puzzle-image', (req, res) => {
-  console.log('Request received at /api/puzzle-image');
-  const randomImage = images[Math.floor(Math.random() * images.length)];
+  // Recibimos la última imagen que tuvo el usuario (si existe)
+  const lastImage = req.query.last;
+  
+  // Filtramos para no repetir la inmediata anterior
+  let availableImages = images;
+  if (lastImage) {
+    availableImages = images.filter(img => img !== lastImage);
+  }
+
+  // Si nos quedamos sin imágenes (ej. solo había 1), reseteamos
+  if (availableImages.length === 0) availableImages = images;
+
+  const randomImage = availableImages[Math.floor(Math.random() * availableImages.length)];
   res.json({ imageUrl: randomImage });
 });
 

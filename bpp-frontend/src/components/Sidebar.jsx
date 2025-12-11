@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import { ChevronLeft, EmojiNature } from '@mui/icons-material';
 import { Link, useLocation } from 'react-router-dom';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'; // Importa el icono
 
 const Sidebar = ({
   isOpen,

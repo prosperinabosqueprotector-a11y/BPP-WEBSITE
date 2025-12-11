@@ -33,6 +33,13 @@ export const navItems = [
   { text: 'Flora', emoji: '🌿', route: '/flora' },
   { text: 'Fauna', emoji: '🦊', route: '/fauna' },
   { text: 'Juegos', emoji: '🎮', route: '/juegos' },
+  { 
+    text: 'Rankings', 
+    emoji: '🏆', // Emoji de trofeo
+    // O si usas componentes de iconos en lugar de emojis de texto:
+    // icon: <EmojiEventsIcon />, 
+    route: '/rankings' 
+  },
   { text: 'Comunidad', emoji: '📸', route: '/comunidad' },
   { text: 'Reseñas', emoji: '⭐', route: '/reviews' },
   {

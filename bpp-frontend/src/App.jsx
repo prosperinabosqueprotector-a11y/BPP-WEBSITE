@@ -23,6 +23,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import { colorSchemes, navItems } from './data/appData';
 import { SnackbarProvider } from "notistack";
+import GameRankings from './pages/GameRankings'; 
 
 // Función para determinar la estación del año en Ecuador
 const getSeason = () => {
@@ -170,6 +171,7 @@ export default function App() {
                     path="/reviews"
                     element={<Reviews theme={theme} />}
                   />
+                  <Route path="/rankings" element={<GameRankings />} />
                   <Route
                     path="/pdf"
                     element={<PDFViewer pdfUrl="/cuadernillo.pdf" />}
