@@ -185,6 +185,10 @@ export default function App() {
                     path="/gallery"
                     element={<GalleryPage theme={theme} />}
                   />
+                  <Route
+                    path="/users"
+                    element={<UsersPage theme={theme} />}
+                  />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/signup" element={<SignupPage />} />
                 </Routes>

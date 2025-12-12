@@ -52,6 +52,12 @@ export const navItems = [
     route: '/gallery',
     emoji: '🖼️',
   },
+  {
+    text: 'Usuarios',
+
+    route: '/users',
+    emoji: '👤',
+  },
 ];
 
 export const learningOptions = [
