@@ -57,7 +57,6 @@ const Sidebar = ({
       }}
     >
       <div className="p-4 flex justify-between items-center">
-        <EmojiNature className="text-4xl" />
         <IconButton onClick={toggleSidebar} className="text-current">
           <ChevronLeft />
         </IconButton>
