@@ -147,23 +147,44 @@ const UploadPage = ({ theme }) => {
   };
 
   // Aceptar imagen → mover de carpeta "pendientes" a "upload", y borrar de db
-  const handleAccept = async (img) => {
-    try {
-      const res = await fetch(`${API_URL}/api/cloudinary/move`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ public_id: img.public_id }),
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error);
-      await deleteDoc(doc(db, "imagenesPendientes", img.id));
-      setPendingImages((prev) => prev.filter((i) => i.id !== img.id));
-      alert("Imagen aceptada");
-    } catch (err) {
-      console.error(err);
-      alert("Error al aceptar imagen");
-    }
-  };
+  // Asegúrate de importar 'addDoc' y 'collection' de firebase/firestore arriba
+
+const handleAccept = async (img) => {
+  try {
+    // 1. Mover la imagen en Cloudinary (Backend)
+    const res = await fetch(`${API_URL}/api/cloudinary/move`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ public_id: img.public_id }),
+    });
+    
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+
+    // 2. --- PASO NUEVO --- GUARDAR EN COLECCIÓN 'GALERIA' PERMANENTE
+    // Usamos los datos que ya teníamos en 'img' (el documento pendiente)
+    await addDoc(collection(db, "galeria"), {
+      archivo: data.url || img.archivo, // La URL final
+      public_id: data.newPublicId || img.public_id, // El ID nuevo
+      explorador: img.explorador || "Anónimo", // Guardamos el nombre
+      avatar: img.avatar || "", // Guardamos el avatar
+      correo: img.correo || "",
+      fecha: new Date().toLocaleDateString("es-EC"),
+      tipo: "imagen", // Por si luego metes videos
+      approvedAt: serverTimestamp() // Para ordenar
+    });
+
+    // 3. Borrar de pendientes (Ahora sí es seguro borrar)
+    await deleteDoc(doc(db, "imagenesPendientes", img.id));
+    
+    setPendingImages((prev) => prev.filter((i) => i.id !== img.id));
+    alert("✅ Imagen aprobada y movida a la galería pública.");
+
+  } catch (err) {
+    console.error(err);
+    alert("❌ Error al aceptar imagen: " + err.message);
+  }
+};
 
   // Rechazar imagen → borar de carpeta "pendientes", y borrar de db
   const handleReject = async (item) => {

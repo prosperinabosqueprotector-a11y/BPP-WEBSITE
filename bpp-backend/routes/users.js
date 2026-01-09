@@ -28,27 +28,55 @@ router.get('/todos', verifyRole('profesor'), async (req, res) => {
 
 router.post("/signup", async (req, res) => {
   try {
-    const { nombre, email, rol, username, user} = req.body;
-    // Asignar custom claim (rol)
-    await admin.auth().setCustomUserClaims(user.uid, { rol });
-    await db.collection("Usuarios").doc(user.uid).set({
+    // 1. Recibimos el password del frontend
+    const { nombre, email, password, rol, username } = req.body;
+
+    if (!email || !password || !nombre) {
+      return res.status(400).json({ error: "Faltan datos obligatorios" });
+    }
+
+    // 2. CREAMOS el usuario en Firebase Authentication desde el servidor
+    const userRecord = await admin.auth().createUser({
+      email: email,
+      password: password,
+      displayName: nombre,
+      emailVerified: false, // Opcional: true si no quieres que verifiquen email
+      disabled: false,
+    });
+
+    const uid = userRecord.uid;
+
+    // 3. Asignar custom claim (rol)
+    await admin.auth().setCustomUserClaims(uid, { rol });
+
+    // 4. Guardar datos adicionales en Firestore
+    await db.collection("Usuarios").doc(uid).set({
       nombre,
       username: username || nombre,
       rol,
       email,
+      // Si es estudiante, se aprueba automático. Si es profesor, requiere aprobación manual.
       aprobado: rol === "estudiante" ? true : false,
       createdAt: new Date(),
     });
+
     res.json({
       mensaje: `Usuario creado con rol ${rol}`,
-      uid: user.uid,
+      uid: uid,
     });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err });
+    console.error("Error en signup:", err);
+    // Manejo de errores comunes de Firebase
+    if (err.code === 'auth/email-already-exists') {
+      return res.status(400).json({ error: "El correo ya está registrado." });
+    }
+    if (err.code === 'auth/invalid-password') {
+      return res.status(400).json({ error: "La contraseña es muy débil." });
+    }
+    res.status(500).json({ error: "Error interno al crear usuario: " + err.message });
   }
 });
-
 
 router.post("/login", async (req, res) => {
   try {

@@ -4,21 +4,25 @@ const { db } = require("../firebaseAuthConfig");
 
 const router = express.Router();
 
-// Obtener reviews
-// ?status=pending | approved → si no se pasa, devuelve todas
+// 📌 Obtener reviews (CORREGIDO)
 router.get("/", async (req, res) => {
   try {
     const status = req.query.status; 
-    let collectionName = "reviews"; // default
+    let collectionName = "reviews"; // default o approved si usas esa lógica en otros lados
+    
+    // Mapeo exacto a tus colecciones
     if (status === "pending") collectionName = "reviews_pendientes";
     else if (status === "approved") collectionName = "reviews_aprobadas";
 
     const snapshot = await db.collection(collectionName).get();
 
-    if (snapshot.empty) return res.status(404).json({ error: "No hay reseñas disponibles" });
-
+    // --- CORRECCIÓN AQUÍ ---
+    // NO devolvemos 404 si está vacío. Devolvemos un array vacío [].
     const reviews = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    res.status(200).json(reviews);
+    
+    res.status(200).json(reviews); 
+    // -----------------------
+
   } catch (error) {
     console.error("❌ Error al obtener reseñas:", error);
     res.status(500).json({ error: "Error al obtener reseñas", details: error.message });

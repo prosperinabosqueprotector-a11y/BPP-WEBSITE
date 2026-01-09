@@ -48,11 +48,6 @@ const ImageApprovalTable = ({ items, showApproval = true, onAccept, onReject }) 
                 </td>
                 <td className="p-3 text-center align-middle">
                   <div className="flex items-center justify-center gap-2">
-                    <img
-                      src={item.avatar}
-                      alt={item.explorador}
-                      className="h-8 w-8 rounded-full"
-                    />
                     <span>{item.explorador}</span>
                   </div>
                 </td>
