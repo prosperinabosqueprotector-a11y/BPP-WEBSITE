@@ -308,22 +308,29 @@ const Flora = () => {
         </Select>
       </Box>
 
-      <Card sx={{ p: 3, mb: 4 }}>
-        <Typography variant="h5" gutterBottom>Contribuir</Typography>
+      {role === "profesor" && (
+      <Card sx={{ p: 3, mb: 4, border: '1px solid #c8e6c9', bgcolor: '#f1f8e9' }}>
+        <Typography variant="h5" gutterBottom sx={{ color: 'primary.main', fontWeight: 'bold' }}>
+           🛠️ Panel de Contribución (Solo Profesores)
+        </Typography>
         <form onSubmit={handleUpload}>
-           {/* Input de archivo y preview (igual que antes) */}
-           <input type="file" accept="image/*" onChange={(e) => { if (e.target.files[0]) { setFile(e.target.files[0]); setPreview(URL.createObjectURL(e.target.files[0])); }}} />
-           {preview && <CardMedia component="img" image={preview} sx={{ maxHeight: 200, mt: 2, mb: 2, width: "auto" }} />}
-           {/* Inputs de texto (igual que antes) */}
+           {/* ... Inputs del formulario ... */}
+           {/* Input Archivo */}
+           <Box mb={2}>
+             <input type="file" accept="image/*" onChange={(e) => { if (e.target.files[0]) { setFile(e.target.files[0]); setPreview(URL.createObjectURL(e.target.files[0])); }}} />
+           </Box>
+           {preview && <CardMedia component="img" image={preview} sx={{ maxHeight: 200, mt: 2, mb: 2, width: "auto", borderRadius: 1 }} />}
+           
            <TextField label="Nombre" value={name} onChange={(e) => setName(e.target.value)} required fullWidth sx={{ mb: 2 }} />
            <TextField select label="Categoría" value={category} onChange={(e) => setCategory(e.target.value)} required fullWidth sx={{ mb: 2 }}>
              <MenuItem value="Principales">Principales</MenuItem>
              <MenuItem value="Toxicas">Tóxicas</MenuItem>
            </TextField>
            <TextField label="Descripción" value={description} onChange={(e) => setDescription(e.target.value)} required multiline rows={3} fullWidth sx={{ mb: 2 }} />
-           <Button variant="contained" type="submit" disabled={loading || !role} startIcon={<CloudUploadIcon />}>Subir</Button>
+           <Button variant="contained" type="submit" disabled={loading} startIcon={<CloudUploadIcon />}>Subir Contenido</Button>
         </form>
       </Card>
+    )}
 
       {/* Grid de Plantas */}
       {loading && plants.length === 0 ? <CircularProgress sx={{ display: 'block', mx: 'auto' }} /> : (

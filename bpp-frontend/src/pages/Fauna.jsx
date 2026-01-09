@@ -306,12 +306,18 @@ const Fauna = () => {
       </Box>
 
       {/* Formulario Subida */}
-      <Card sx={{ p: 3, mb: 4 }}>
-        <Typography variant="h5" gutterBottom>Contribuir</Typography>
+      {role === "profesor" && (
+      <Card sx={{ p: 3, mb: 4, border: '1px solid #ffe0b2', bgcolor: '#fff3e0' }}>
+        <Typography variant="h5" gutterBottom sx={{ color: 'warning.main', fontWeight: 'bold' }}>
+           🛠️ Panel de Contribución (Solo Profesores)
+        </Typography>
         <form onSubmit={handleUpload}>
-           {/* Inputs igual que antes */}
-           <input type="file" accept="image/*" onChange={(e) => { if (e.target.files[0]) { setFile(e.target.files[0]); setPreview(URL.createObjectURL(e.target.files[0])); }}} />
-           {preview && <CardMedia component="img" image={preview} sx={{ maxHeight: 200, mt: 2, mb: 2, width: "auto" }} />}
+           {/* ... Inputs del formulario ... */}
+           <Box mb={2}>
+             <input type="file" accept="image/*" onChange={(e) => { if (e.target.files[0]) { setFile(e.target.files[0]); setPreview(URL.createObjectURL(e.target.files[0])); }}} />
+           </Box>
+           {preview && <CardMedia component="img" image={preview} sx={{ maxHeight: 200, mt: 2, mb: 2, width: "auto", borderRadius: 1 }} />}
+           
            <TextField label="Nombre" value={name} onChange={(e) => setName(e.target.value)} required fullWidth sx={{ mb: 2 }} />
            <TextField select label="Categoría" value={category} onChange={(e) => setCategory(e.target.value)} required fullWidth sx={{ mb: 2 }}>
              <MenuItem value="Reptiles">Reptiles</MenuItem>
@@ -320,9 +326,10 @@ const Fauna = () => {
              <MenuItem value="Mamíferos">Mamíferos</MenuItem>
            </TextField>
            <TextField label="Descripción" value={description} onChange={(e) => setDescription(e.target.value)} required multiline rows={3} fullWidth sx={{ mb: 2 }} />
-           <Button variant="contained" type="submit" disabled={loading || !role} startIcon={<CloudUploadIcon />}>Subir</Button>
+           <Button variant="contained" color="warning" type="submit" disabled={loading} startIcon={<CloudUploadIcon />}>Subir Contenido</Button>
         </form>
       </Card>
+    )}
 
       {/* Grid de Animales */}
       {loading && animals.length === 0 ? <CircularProgress sx={{ display: 'block', mx: 'auto' }} /> : (

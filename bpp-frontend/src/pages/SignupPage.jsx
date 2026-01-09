@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 
-const API_URL = "http://169.254.83.107:3000"; 
+const API_URL = "https://bpp-website-1.onrender.com"; 
 
 const SignupPage = () => {
   const [role, setRole] = useState('estudiante');
