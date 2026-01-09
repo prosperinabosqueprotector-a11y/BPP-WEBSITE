@@ -1,30 +1,49 @@
 const express = require('express');
 const router = express.Router();
+const { db } = require("../firebaseAuthConfig"); // Asegúrate de que la ruta sea correcta
 
-// Lista de imágenes disponibles
-const images = [
-  '/images/puzzle1.jpg',
-  '/images/puzzle2.jpg',
-  '/images/puzzle3.jpeg',
-  '/images/puzzle4.jpeg',
-  '/images/puzzle5.jpg',
-];
+router.get('/puzzle-image', async (req, res) => {
+  try {
+    const lastImage = req.query.last;
 
-router.get('/puzzle-image', (req, res) => {
-  // Recibimos la última imagen que tuvo el usuario (si existe)
-  const lastImage = req.query.last;
-  
-  // Filtramos para no repetir la inmediata anterior
-  let availableImages = images;
-  if (lastImage) {
-    availableImages = images.filter(img => img !== lastImage);
+    // 1. Obtenemos los documentos de ambas colecciones en paralelo
+    const [floraSnap, faunaSnap] = await Promise.all([
+      db.collection('floraAprobada').get(),
+      db.collection('faunaAprobada').get()
+    ]);
+
+    // 2. Extraemos solo las URLs de las imágenes
+    let allImages = [];
+    floraSnap.forEach(doc => {
+      const data = doc.data();
+      if (data.image) allImages.push(data.image);
+    });
+    faunaSnap.forEach(doc => {
+      const data = doc.data();
+      if (data.image) allImages.push(data.image);
+    });
+
+    // 3. Si por alguna razón las colecciones están vacías, usamos fallbacks
+    if (allImages.length === 0) {
+      return res.json({ 
+        imageUrl: 'https://placehold.co/600x600?text=Sube+fotos+a+la+enciclopedia' 
+      });
+    }
+
+    // 4. Filtramos para no repetir la imagen anterior
+    let availableImages = allImages;
+    if (lastImage && allImages.length > 1) {
+      availableImages = allImages.filter(img => img !== lastImage);
+    }
+
+    // 5. Elegimos una al azar
+    const randomImage = availableImages[Math.floor(Math.random() * availableImages.length)];
+    
+    res.json({ imageUrl: randomImage });
+  } catch (error) {
+    console.error("Error al obtener imagen para el puzzle:", error);
+    res.status(500).json({ error: "Error interno del servidor", details: error.message });
   }
-
-  // Si nos quedamos sin imágenes (ej. solo había 1), reseteamos
-  if (availableImages.length === 0) availableImages = images;
-
-  const randomImage = availableImages[Math.floor(Math.random() * availableImages.length)];
-  res.json({ imageUrl: randomImage });
 });
 
 module.exports = router;

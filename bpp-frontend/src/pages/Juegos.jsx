@@ -151,25 +151,35 @@ export default function Juegos() {
   const [activeGame, setActiveGame] = useState(null);
   const [puzzleImage, setPuzzleImage] = useState('');
 
-  const handleSelectGame = async (gameId) => {
+  const handleSelectGame = (gameId) => {
     if (gameId === 'puzzle') {
-      try {
-        const lastImg = puzzleImage;
-        const apiUrl = 'https://bpp-website-1.onrender.com';
-        const response = await fetch(
-          `${apiUrl}/api/puzzle-image?last=${encodeURIComponent(lastImg)}`
-        );
+      // 1. Definimos la lista de imágenes locales (ruta desde la carpeta public)
+      const localImages = [
+        '/images/chicosProsperina1.jpeg',
+        '/images/chicosProsperina2.jpeg',
+        '/images/chicosProsperina3.jpeg',
+        '/images/chicosProsperina4.jpeg',
+        '/images/chicosProsperina5.jpeg',
+        '/images/chicosProsperina6.jpeg'
+      ];
 
-        if (!response.ok) throw new Error('Error fetching puzzle');
-        const data = await response.json();
+      // 2. Filtramos para no repetir la imagen actual
+      // puzzleImage es el estado que guarda la imagen actual en tu componente principal
+      let availableImages = localImages.filter(img => img !== puzzleImage);
 
-        setPuzzleImage(data.imageUrl);
-        setActiveGame('puzzle');
-      } catch (error) {
-        console.error(error);
-        setActiveGame('puzzle');
-      }
+      // Si por alguna razón solo hay una imagen, volvemos a usar la lista completa
+      if (availableImages.length === 0) availableImages = localImages;
+
+      // 3. Elegimos una al azar
+      const randomIndex = Math.floor(Math.random() * availableImages.length);
+      const selectedImg = availableImages[randomIndex];
+
+      // 4. Actualizamos los estados
+      setPuzzleImage(selectedImg);
+      setActiveGame('puzzle');
+      
     } else {
+      // Para otros juegos, simplemente cambiamos el juego activo
       setActiveGame(gameId);
     }
   };

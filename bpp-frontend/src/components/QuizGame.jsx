@@ -8,30 +8,64 @@ import {
   Grid,
   Card,
   CardActionArea,
-  CardContent
+  CardContent,
+  CircularProgress
 } from '@mui/material';
 import { EmojiEvents, NavigateNext, Refresh } from '@mui/icons-material';
 import ScoreModal from './ScoreModal';
 
+const QUESTIONS_PER_GAME = 5; // Configuración: 5 preguntas por partida
+
 const QuizGame = () => {
-  const [questions, setQuestions] = useState([]);
+  const [fullQuestionBank, setFullQuestionBank] = useState([]); // Banco completo
+  const [questions, setQuestions] = useState([]); // Las 5 activas
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [score, setScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchQuestions();
   }, []);
 
+  // Función para barajar array (Fisher-Yates shuffle)
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
   const fetchQuestions = async () => {
     try {
       const response = await fetch('https://bpp-website-1.onrender.com/api/quiz/all');
       const data = await response.json();
-      if (Array.isArray(data)) setQuestions(data);
+      
+      if (Array.isArray(data)) {
+        setFullQuestionBank(data); // Guardamos todo el banco
+        setupGame(data); // Iniciamos el juego con 5 al azar
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Error cargando quiz:", error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Selecciona 5 preguntas al azar del banco
+  const setupGame = (bank) => {
+    const shuffled = shuffleArray(bank);
+    const selectedFive = shuffled.slice(0, QUESTIONS_PER_GAME);
+    setQuestions(selectedFive);
+    
+    // Resetear estados de juego
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer('');
+    setScore(0);
+    setIsGameOver(false);
   };
 
   const handleAnswerSelect = (answer) => {
@@ -59,22 +93,29 @@ const QuizGame = () => {
   };
 
   const resetQuiz = () => {
-    setCurrentQuestionIndex(0);
-    setSelectedAnswer('');
-    setScore(0);
-    setIsGameOver(false);
+    // Al reiniciar, volvemos a elegir 5 preguntas DISTINTAS del banco que ya tenemos
+    setupGame(fullQuestionBank);
   };
 
   const handleSaveSuccess = () => {
     resetQuiz();
   };
 
-  if (questions.length === 0) {
+  if (loading) {
     return (
       <Paper elevation={3} sx={{ p: 4, textAlign: 'center', borderRadius: 4 }}>
-        <Typography>Cargando preguntas...</Typography>
-        <LinearProgress sx={{ mt: 2 }} />
+        <Typography gutterBottom>Cargando banco de preguntas...</Typography>
+        <LinearProgress color="success" />
       </Paper>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+        <Paper elevation={3} sx={{ p: 4, textAlign: 'center', borderRadius: 4 }}>
+          <Typography>No se encontraron preguntas disponibles.</Typography>
+          <Button onClick={fetchQuestions} startIcon={<Refresh />}>Reintentar</Button>
+        </Paper>
     );
   }
 
@@ -142,14 +183,9 @@ const QuizGame = () => {
                     <CardContent sx={{ display: 'flex', alignItems: 'center', p: 1, '&:last-child': { pb: 1 } }}>
                       <Box 
                         sx={{ 
-                          width: 24, 
-                          height: 24, 
-                          borderRadius: '50%', 
+                          width: 24, height: 24, borderRadius: '50%', 
                           border: `2px solid ${isSelected ? '#4caf50' : '#bdbdbd'}`,
-                          mr: 2,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
+                          mr: 2, display: 'flex', alignItems: 'center', justifyContent: 'center'
                         }}
                       >
                         {isSelected && <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#4caf50' }} />}

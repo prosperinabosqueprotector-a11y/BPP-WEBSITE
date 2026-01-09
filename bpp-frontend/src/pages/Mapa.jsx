@@ -43,8 +43,15 @@ const pointsOfInterest = [
     name: 'Casa de Interpretación',
     lat: -2.151852,
     lng: -79.960755,
-    description:
-      'Pequeño centro de inicio con mapas y recursos para conocer la flora y fauna del bosque.',
+    description: 'Pequeño centro de inicio con mapas y recursos para conocer la flora y fauna del bosque.',
+  },
+  // --- NUEVA LOCACIÓN AGREGADA AQUÍ ---
+  {
+    id: 8,
+    name: 'Mirador de Tortugas Gigantes',
+    lat: -2.152280,
+    lng: -79.961250,
+    description: 'Punto de observación donde se puede aprender sobre las tortugas gigantes de Galápagos, su historia evolutiva y su importancia ecológica, acompañado de paneles informativos y sombra natural.',
   },
   {
     id: 2,

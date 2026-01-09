@@ -29,7 +29,7 @@ import UsersPage from './pages/UsersPage';
 // Función para determinar la estación del año en Ecuador
 const getSeason = () => {
   const month = new Date().getMonth() + 1; // Enero es 0
-  return month >= 1 && month <= 5 ? 'Invierno ☁️ (Temporada lluviosa)' : 'Verano ☀️ (Temporada seca)';
+  return month >= 1 && month <= 5 ? 'Temporada lluviosa ☁️ ' : 'Temporada seca ☀️';
 };
 
 export default function App() {
@@ -46,7 +46,7 @@ export default function App() {
   useEffect(() => {
     // Cambia automáticamente el esquema de colores según la estación del año
     const season = getSeason();
-    setColorScheme(season.includes('Invierno') ? 'winter' : 'summer');
+    setColorScheme(season.includes('lluviosa') ? 'winter' : 'summer');
   }, []);
 
   const theme = useMemo(

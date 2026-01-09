@@ -54,4 +54,46 @@ router.get("/top", async (req, res) => {
   }
 });
 
+// 📌 Eliminar todos los rankings de todos los juegos (Solo para Profesores)
+router.delete("/clear-all", async (req, res) => {
+  try {
+    // Usamos un WriteBatch para agrupar las operaciones de borrado
+    const batch = db.batch();
+    let totalDeleted = 0;
+
+    // Recorremos cada juego permitido
+    for (const gameId of ALLOWED_GAMES) {
+      const collectionName = `${gameId}_scores`;
+      const collectionRef = db.collection(collectionName);
+      
+      // Obtenemos todos los documentos de esa colección de puntajes
+      const snapshot = await collectionRef.get();
+      
+      snapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+        totalDeleted++;
+      });
+    }
+
+    // Si no hay nada que borrar, avisamos
+    if (totalDeleted === 0) {
+      return res.status(200).json({ message: "No había registros para eliminar." });
+    }
+
+    // Ejecutamos el lote de borrado
+    await batch.commit();
+
+    res.status(200).json({ 
+      message: `✅ Se han reiniciado todos los rankings. (${totalDeleted} registros eliminados)` 
+    });
+
+  } catch (error) {
+    console.error("Error al limpiar rankings:", error);
+    res.status(500).json({ 
+      error: "❌ Error al limpiar los rankings", 
+      details: error.message 
+    });
+  }
+});
+
 module.exports = router;

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'; // 1. Importar hooks
 import {
   Drawer,
   List,
@@ -8,7 +9,8 @@ import {
 } from '@mui/material';
 import { ChevronLeft, EmojiNature } from '@mui/icons-material';
 import { Link, useLocation } from 'react-router-dom';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'; // Importa el icono
+import { auth } from '../config/firebaseConfig'; // 2. Importar auth
+import { onAuthStateChanged } from 'firebase/auth';
 
 const Sidebar = ({
   isOpen,
@@ -19,6 +21,25 @@ const Sidebar = ({
   theme,
 }) => {
   const location = useLocation();
+  
+  // --- 3. LÓGICA DE PROTECCIÓN DE RUTAS ---
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const idTokenResult = await user.getIdTokenResult();
+          setRole(idTokenResult.claims.rol); // 'profesor', 'estudiante', etc.
+        } catch (error) {
+          setRole('estudiante');
+        }
+      } else {
+        setRole(null); // Sin sesión iniciada
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
     <Drawer
@@ -32,7 +53,6 @@ const Sidebar = ({
           color: theme.palette.primary.contrastText,
           borderRight: 'none',
           transition: 'transform 0.3s ease-in-out',
-          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
         },
       }}
     >
@@ -44,6 +64,12 @@ const Sidebar = ({
       </div>
       <List>
         {navItems.map((item, index) => {
+          // --- 4. FILTRO DE SEGURIDAD ---
+          // Si el item es "Usuarios" y el rol NO es profesor, no renderizamos nada (null)
+          if (item.text === "Usuarios" && role !== "profesor") {
+            return null;
+          }
+
           const isActive = location.pathname === item.route;
           return (
             <Zoom
@@ -57,11 +83,7 @@ const Sidebar = ({
                 to={item.route}
                 className={`
                   hover:bg-opacity-20 hover:bg-white
-                  ${
-                    isActive
-                      ? 'bg-opacity-30 bg-white border-l-4 border-secondary'
-                      : ''
-                  }
+                  ${isActive ? 'bg-opacity-30 bg-white border-l-4 border-secondary' : ''}
                   transition-all duration-200
                 `}
                 onClick={() => handleNavItemClick(item.text)}

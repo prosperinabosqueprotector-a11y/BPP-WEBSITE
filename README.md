@@ -67,7 +67,7 @@ BPP-Plataforma es una aplicación web integral diseñada para proporcionar una e
    npm run dev
    ```
 
-   El servidor backend se ejecutará en `https://bpp-website.onrender.com`.
+   El servidor backend se ejecutará en `https://bpp-website-1.onrender.com`.
 
 ## Ejecutando Frontend y Backend Simultáneamente
 
