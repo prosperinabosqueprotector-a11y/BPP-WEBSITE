@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Typography,
   Card,
@@ -19,6 +19,7 @@ import MemoryGame from '../components/MemoryGame';
 import CrosswordGame from '../components/CrosswordGame';
 import HangmanGame from '../components/HangmanGame';
 import WordSearchGame from '../components/WordSearchGame';
+import ForestClassificationGame from '../components/ForestClassificationGame';
 
 const GAME_LIST = [
   {
@@ -50,6 +51,12 @@ const GAME_LIST = [
     id: 'memory',
     title: 'Encuentra las Cartas',
     image: 'https://play-lh.googleusercontent.com/cDF6IMlYXnjdSEGwbuojkVaaQpbnLeCKiJQ1e6IY7KOyt4UioZUT0PKpyUOVk8q1Hr0',
+  },
+  {
+    id: 'classification',
+    title: 'Clasifica el Bosque',
+    image: '/images/clasificacion.jpeg',
+    imagePosition: 'top',
   }
 ];
 
@@ -88,7 +95,7 @@ const GameMenu = ({ games, onSelectGame }) => {
         <StarIcon sx={{ color: 'gold', fontSize: 30 }} />
       </Box>
 
-      <Grid container spacing={4} justifyContent="center">
+      <Grid container spacing={4} justifyContent="flex-start">
         {games.map((game, index) => (
           <Grid item xs={12} sm={6} md={4} key={game.id}>
             <motion.div
@@ -118,7 +125,8 @@ const GameMenu = ({ games, onSelectGame }) => {
                   alt={game.title}
                   sx={{ 
                     height: 180, 
-                    objectFit: 'cover' 
+                    objectFit: 'cover',
+                    objectPosition: game.imagePosition || 'center',
                   }}
                 />
                 <CardContent sx={{ 
@@ -196,6 +204,7 @@ export default function Juegos() {
       case 'crossword': return <CrosswordGame />;
       case 'hangman': return <HangmanGame />;
       case 'wordsearch': return <WordSearchGame />;
+      case 'classification': return <ForestClassificationGame />;
       default: return null;
     }
   };

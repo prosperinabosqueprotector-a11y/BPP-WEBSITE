@@ -64,7 +64,7 @@ export default function GameRankings() {
         try {
           const idTokenResult = await user.getIdTokenResult();
           setRole(idTokenResult.claims.rol);
-        } catch (error) {
+        } catch {
           setRole('estudiante');
         }
       } else {

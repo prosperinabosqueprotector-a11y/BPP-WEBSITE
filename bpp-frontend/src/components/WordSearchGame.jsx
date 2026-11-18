@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -6,109 +6,101 @@ import {
   LinearProgress,
   IconButton,
   Button,
-  Chip,
-  Divider
+  Chip
 } from '@mui/material';
 import { Timer, Refresh, CheckCircle } from '@mui/icons-material';
 import ScoreModal from './ScoreModal';
 
-// --- CONFIGURACIÓN DE LAS SOPAS (Mantenemos tus datos) ---
-const SOPAS_DATA = [
-  {
-    grid: [
-      ['A', 'J', 'G', 'A', 'N', 'U', 'T', 'L'],
-      ['N', 'G', 'H', 'M', 'I', 'U', 'X', 'O'],
-      ['S', 'U', 'I', 'O', 'B', 'R', 'O', 'B'],
-      ['X', 'O', 'K', 'N', 'C', 'A', 'E', 'R'],
-      ['F', 'S', 'L', 'O', 'N', 'I', 'O', 'A'],
-      ['O', 'A', 'A', 'V', 'E', 'Z', 'V', 'A'],
-      ['E', 'U', 'Q', 'S', 'O', 'B', 'E', 'O'],
-      ['N', 'S', 'E', 'M', 'I', 'L', 'L', 'A']
-    ],
-    solutions: {
-      'AIRE': ['0-3', '1-4', '2-5', '3-6'],
-      'SOL': ['2-0', '3-1', '4-2'],
-      'AVE': ['5-2', '5-3', '5-4'],
-      'MONO': ['1-3', '2-3', '3-3', '4-3'],
-      'BOSQUE': ['6-5', '6-4', '6-3', '6-2', '6-1', '6-0'],
-      'ARBOL': ['4-7', '3-7', '2-7', '1-7', '0-7'],
-      'RAIZ': ['2-5', '3-5', '4-5', '5-5'],
-      'SEMILLA': ['7-1', '7-2', '7-3', '7-4', '7-5', '7-6', '7-7'],
-    }
-  },
-  {
-    grid: [
-      ['K', 'A', 'I', 'V', 'U', 'L', 'L', 'R'],
-      ['A', 'S', 'O', 'P', 'I', 'R', 'A', 'M'],
-      ['Q', 'A', 'R', 'R', 'E', 'I', 'T', 'J'],
-      ['Y', 'K', 'A', 'U', 'C', 'A', 'H', 'D'],
-      ['O', 'T', 'C', 'E', 'S', 'N', 'I', 'I'],
-      ['O', 'Z', 'S', 'A', 'C', 'O', 'R', 'K'],
-      ['T', 'S', 'A', 'N', 'I', 'P', 'S', 'E'],
-      ['S', 'A', 'L', 'L', 'I', 'M', 'E', 'S']
-    ],
-    solutions: {
-      'RAICES': ['0-7', '1-6', '2-5', '3-4', '4-3', '5-2'],
-      'SEMILLAS': ['7-7', '7-6', '7-5', '7-4', '7-3', '7-2', '7-1', '7-0'],
-      'ESPINAS': ['6-7', '6-6', '6-5', '6-4', '6-3', '6-2', '6-1'],
-      'INSECTO': ['4-6', '4-5', '4-4', '4-3', '4-2', '4-1', '4-0'],
-      'MARIPOSA': ['1-7', '1-6', '1-5', '1-4', '1-3', '1-2', '1-1', '1-0'],
-      'LLUVIA': ['0-6', '0-5', '0-4', '0-3', '0-2', '0-1'],
-      'TIERRA': ['2-6', '2-5', '2-4', '2-3', '2-2', '2-1'],
-      'ROCAS': ['5-6', '5-5', '5-4', '5-3', '5-2']
-    }
-  },
-  {
-    grid: [
-      ['U', 'E', 'B', 'E', 'J', 'U', 'C', 'O'],
-      ['O', 'S', 'S', 'P', 'H', 'G', 'T', 'A'],
-      ['Y', 'O', 'U', 'P', 'I', 'A', 'R', 'E'],
-      ['U', 'C', 'T', 'V', 'E', 'V', 'O', 'S'],
-      ['Y', 'I', 'C', 'C', 'R', 'I', 'N', 'P'],
-      ['U', 'R', 'A', 'A', 'B', 'L', 'C', 'I'],
-      ['M', 'E', 'C', 'J', 'A', 'A', 'O', 'N'],
-      ['A', 'P', 'G', 'X', 'S', 'N', 'S', 'O']
-    ],
-    solutions: {
-      'MUYUYO': ['6-0', '5-0', '4-0', '3-0', '2-0', '1-0'],
-      'CACTUS': ['6-2', '5-2', '4-2', '3-2', '2-2', '1-2'],
-      'ESPINO': ['2-7', '3-7', '4-7', '5-7', '6-7', '7-7'],
-      'BEJUCO': ['0-2', '0-3', '0-4', '0-5', '0-6', '0-7'],
-      'HIERBAS': ['1-4', '2-4', '3-4', '4-4', '5-4', '6-4', '7-4'],
-      'TRONCOS': ['1-6', '2-6', '3-6', '4-6', '5-6', '6-6', '7-6'],
-      'PERICOS': ['7-1', '6-1', '5-1', '4-1', '3-1', '2-1', '1-1'],
-      'GAVILAN': ['1-5', '2-5', '3-5', '4-5', '5-5', '6-5', '7-5']
-    }
-  },
-  {
-    grid: [
-      ['M', 'B', 'A', 'B', 'U', 'T', 'C', 'I'],
-      ['W', 'O', 'R', 'U', 'Y', 'Q', 'N', 'A'],
-      ['E', 'S', 'R', 'H', 'R', 'S', 'R', 'S'],
-      ['R', 'Q', 'E', 'O', 'E', 'D', 'R', 'O'],
-      ['I', 'U', 'I', 'C', 'I', 'A', 'A', 'L'],
-      ['A', 'E', 'T', 'L', 'N', 'T', 'X', 'O'],
-      ['J', 'O', 'L', 'A', 'I', 'D', 'N', 'E'],
-      ['S', 'A', 'S', 'E', 'E', 'T', 'H', 'N']
-    ],
-    solutions: {
-      'BUHO': ['0-3', '1-3', '2-3', '3-3'],
-      'ARDILLA': ['1-7', '2-6', '3-5', '4-4', '5-3', '6-2', '7-1'],
-      'RANAS': ['3-6', '4-5', '5-4', '6-3', '7-2'],
-      'INSECTOS': ['0-7', '1-6', '2-5', '3-4', '4-3', '5-2', '6-1', '7-0'],
-      'AIRE': ['5-0', '4-0', '3-0', '2-0'],
-      'SOL': ['2-7', '3-7', '4-7'],
-      'BOSQUE': ['0-1', '1-1', '2-1', '3-1', '4-1', '5-1'],
-      'TIERRA': ['5-2', '4-2', '3-2', '2-2', '1-2', '0-2']
-    }
-  }
+const GRID_SIZE = 8;
+const DIRECTIONS = [
+  [-1, -1], [-1, 0], [-1, 1],
+  [0, -1],            [0, 1],
+  [1, -1],  [1, 0],  [1, 1]
 ];
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+const WORD_SETS = [
+  ['AIRE', 'SOL', 'AVE', 'MONO', 'BOSQUE', 'ARBOL', 'RAIZ', 'SEMILLA'],
+  ['RAICES', 'SEMILLAS', 'ESPINAS', 'INSECTO', 'MARIPOSA', 'LLUVIA', 'TIERRA', 'ROCAS'],
+  ['MUYUYO', 'CACTUS', 'ESPINO', 'BEJUCO', 'HIERBAS', 'TRONCOS', 'PERICOS', 'GAVILAN'],
+  ['BUHO', 'ARDILLA', 'RANAS', 'INSECTOS', 'AIRE', 'SOL', 'BOSQUE', 'TIERRA']
+];
+
+const shuffle = (items) => {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
+const generateRandomSopa = () => {
+  const words = shuffle(WORD_SETS[Math.floor(Math.random() * WORD_SETS.length)]);
+  const grid = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(''));
+  const solutions = {};
+
+  const placeWord = (wordIndex) => {
+    if (wordIndex === words.length) return true;
+
+    const word = words[wordIndex];
+    const placements = [];
+    DIRECTIONS.forEach(([rowStep, columnStep]) => {
+      for (let row = 0; row < GRID_SIZE; row++) {
+        for (let column = 0; column < GRID_SIZE; column++) {
+          const endRow = row + (word.length - 1) * rowStep;
+          const endColumn = column + (word.length - 1) * columnStep;
+          if (endRow >= 0 && endRow < GRID_SIZE && endColumn >= 0 && endColumn < GRID_SIZE) {
+            placements.push({ row, column, rowStep, columnStep });
+          }
+        }
+      }
+    });
+
+    for (const { row, column, rowStep, columnStep } of shuffle(placements)) {
+      const coordinates = Array.from({ length: word.length }, (_, index) => {
+        const currentRow = row + index * rowStep;
+        const currentColumn = column + index * columnStep;
+        return { row: currentRow, column: currentColumn, id: `${currentRow}-${currentColumn}` };
+      });
+
+      if (coordinates.some(({ row: currentRow, column: currentColumn }, index) =>
+        grid[currentRow][currentColumn] && grid[currentRow][currentColumn] !== word[index]
+      )) continue;
+
+      coordinates.forEach(({ row: currentRow, column: currentColumn }, index) => {
+        grid[currentRow][currentColumn] = word[index];
+      });
+      solutions[word] = coordinates.map(({ id }) => id);
+
+      if (placeWord(wordIndex + 1)) return true;
+
+      coordinates.forEach(({ row: currentRow, column: currentColumn }) => {
+        grid[currentRow][currentColumn] = '';
+      });
+      delete solutions[word];
+    }
+
+    return false;
+  };
+
+  if (!placeWord(0)) {
+    throw new Error('No se pudo generar una sopa de letras válida.');
+  }
+
+  return {
+    grid: grid.map(row => row.map(letter =>
+      letter || LETTERS[Math.floor(Math.random() * LETTERS.length)]
+    )),
+    solutions
+  };
+};
 
 const GAME_DURATION = 90; // Aumentado un poco para que dé tiempo
 
 export default function WordSearchGame() {
   // --- ESTADOS DE LA SOPA ---
-  const [sopaIndex, setSopaIndex] = useState(0);
+  const [currentSopa, setCurrentSopa] = useState(generateRandomSopa);
   const [selected, setSelected] = useState([]);
   const [foundWords, setFoundWords] = useState([]);
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
@@ -117,19 +109,19 @@ export default function WordSearchGame() {
   const [gameStatus, setGameStatus] = useState('playing');
 
   // --- VARIABLES DERIVADAS ---
-  const currentSopa = SOPAS_DATA[sopaIndex];
   const GRID = currentSopa.grid;
   const SOLUTIONS = currentSopa.solutions;
   const WORDS = Object.keys(SOLUTIONS);
 
-  // Seleccionar una sopa aleatoria al montar o resetear
-  const pickRandomSopa = () => {
-    let newIndex;
-    do {
-      newIndex = Math.floor(Math.random() * SOPAS_DATA.length);
-    } while (newIndex === sopaIndex && SOPAS_DATA.length > 1);
-    setSopaIndex(newIndex);
-  };
+  const finishGame = useCallback((status, remainingTime = 0) => {
+    setGameStatus(status);
+    if (status === 'won') {
+      setScore(100 + (remainingTime * 10));
+    } else {
+      setScore(0);
+    }
+    setIsGameOver(true);
+  }, []);
 
   useEffect(() => {
     if (gameStatus !== 'playing') return;
@@ -146,7 +138,7 @@ export default function WordSearchGame() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [gameStatus]);
+  }, [finishGame, gameStatus]);
 
   const toggleCell = (r, c) => {
     if (gameStatus !== 'playing') return;
@@ -172,20 +164,10 @@ export default function WordSearchGame() {
         setSelected(currentSelection.filter(id => !coordinates.includes(id)));
 
         if (newFound.length === WORDS.length) {
-          finishGame('won');
+          finishGame('won', timeLeft);
         }
       }
     });
-  };
-
-  const finishGame = (status) => {
-    setGameStatus(status);
-    if (status === 'won') {
-      setScore(100 + (timeLeft * 10));
-    } else {
-      setScore(0);
-    }
-    setIsGameOver(true);
   };
 
   const resetGame = () => {
@@ -195,7 +177,7 @@ export default function WordSearchGame() {
     setGameStatus('playing');
     setScore(0);
     setIsGameOver(false);
-    pickRandomSopa(); // <--- AQUÍ CAMBIA LA SOPA
+    setCurrentSopa(generateRandomSopa());
   };
 
   const isCellFound = (r, c) => {

@@ -7,17 +7,20 @@ import {
   Button,
   Typography,
   TextField,
-  Box
+  Box,
+  Alert
 } from '@mui/material';
 
 export default function ScoreModal({ open, score, gameId, onClose, onSaveSuccess }) {
   const [playerName, setPlayerName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const handleSubmit = async () => {
     if (!playerName.trim()) return alert("Escribe tu nombre");
     
     setSaving(true);
+    setSaveError('');
     try {
       const response = await fetch('https://bpp-website-1.onrender.com/api/scores/add', {
         method: 'POST',
@@ -28,17 +31,23 @@ export default function ScoreModal({ open, score, gameId, onClose, onSaveSuccess
           gameId: gameId 
         }),
       });
+      let responseData = {};
+      try {
+        responseData = await response.json();
+      } catch {
+        // La respuesta puede no incluir JSON cuando el servidor falla.
+      }
 
       if (response.ok) {
         if (onSaveSuccess) onSaveSuccess(); 
         onClose(); 
         setPlayerName(''); 
       } else {
-        alert("Error al guardar");
+        throw new Error(responseData.error || `Error del servidor (${response.status})`);
       }
     } catch (error) {
       console.error(error);
-      alert("Error de conexión");
+      setSaveError(error.message || "No se pudo conectar con el servidor.");
     } finally {
       setSaving(false);
     }
@@ -55,12 +64,16 @@ export default function ScoreModal({ open, score, gameId, onClose, onSaveSuccess
           <Typography variant="body2" sx={{ mb: 2 }}>
              Ingresa tu nombre para el Ranking de {gameId.toUpperCase()}
           </Typography>
+          {saveError && <Alert severity="error" sx={{ mb: 2, textAlign: 'left' }}>{saveError}</Alert>}
           <TextField
             autoFocus
             fullWidth
             label="Nombre de Jugador"
             value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
+            onChange={(e) => {
+              setPlayerName(e.target.value);
+              setSaveError('');
+            }}
           />
         </Box>
       </DialogContent>
