@@ -40,7 +40,7 @@ const GAME_LIST = [
   {
     id: 'hangman',
     title: 'Ahorcado',
-    image: 'https://www.daletiempoaljuego.com/wp-content/uploads/2016/03/jec-ahorcado.jpg',
+    image: '/images/ahorcado.jpg',
   },
   {
     id: 'wordsearch',
